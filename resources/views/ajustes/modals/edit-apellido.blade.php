@@ -1,0 +1,70 @@
+<!-- Modal para Editar Apellido -->
+<div id="editApellidoModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 modal-overlay">
+    <div class="modal-container glass-container rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-md">
+        <div class="mb-6">
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">Editar Apellido</h3>
+            <p class="text-gray-600 text-sm">Actualiza tu apellido. Se requiere tu contraseña para confirmar.</p>
+        </div>
+
+        <form method="POST" action="{{ route('ajustes.update.apellido') }}">
+            @csrf
+            @method('PUT')
+
+            <div class="mb-4">
+                <label for="apellido" class="block text-gray-700 font-semibold mb-2 text-sm">Nuevo Apellido</label>
+                <input type="text" 
+                       id="apellido" 
+                       name="apellido" 
+                       value="{{ old('apellido', $user->apellido) }}"
+                       required
+                       maxlength="25"
+                       pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+"
+                       onkeypress="return soloLetrasYEspacios(event)"
+                       oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '')"
+                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#39B54A] focus:outline-none transition-colors text-sm"
+                       placeholder="Ingresa tu apellido (solo letras, máximo 25 caracteres)">
+                @error('apellido')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="mb-6">
+                <label for="contraseña_actual_apellido" class="block text-gray-700 font-semibold mb-2 text-sm">Contraseña Actual</label>
+                <input type="password" 
+                       id="contraseña_actual_apellido" 
+                       name="contraseña_actual" 
+                       required
+                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#39B54A] focus:outline-none transition-colors text-sm"
+                       placeholder="Ingresa tu contraseña actual">
+                @error('contraseña_actual')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="flex gap-3 sm:gap-4">
+                <button type="button" 
+                        onclick="closeModal('editApellidoModal')"
+                        class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold text-base hover:bg-gray-400 transition-colors shadow-lg">
+                    Cancelar
+                </button>
+                <button type="submit" 
+                        class="flex-1 bg-[#39B54A] text-white py-3 rounded-lg font-semibold text-base hover:bg-[#2d8f3a] transition-colors shadow-lg transform hover:scale-105">
+                    Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function soloLetrasYEspacios(event) {
+        const char = String.fromCharCode(event.which);
+        const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]$/;
+        if (!regex.test(char)) {
+            event.preventDefault();
+            return false;
+        }
+        return true;
+    }
+</script>
+

@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
             'correo' => 'admin@example.com',
             'telefono' => '3000000000',
             'user' => 'admin',
-            'contraseña' => Hash::make('Admin123@'),
+            'password' => Hash::make('Admin123@'),
             'id_rol' => 1,
         ]);
     }

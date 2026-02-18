@@ -44,7 +44,7 @@ class AjustesController extends Controller
         $user = Auth::user();
 
         // Verificar contraseña
-        if (!Hash::check($request->contraseña_actual, $user->contraseña)) {
+        if (!Hash::check($request->contraseña_actual, $user->password)) {
             return back()->withErrors(['contraseña_actual' => 'La contraseña actual es incorrecta.'])->withInput();
         }
 
@@ -76,7 +76,7 @@ class AjustesController extends Controller
         $user = Auth::user();
 
         // Verificar contraseña
-        if (!Hash::check($request->contraseña_actual, $user->contraseña)) {
+        if (!Hash::check($request->contraseña_actual, $user->password)) {
             return back()->withErrors(['contraseña_actual' => 'La contraseña actual es incorrecta.'])->withInput();
         }
 
@@ -111,7 +111,7 @@ class AjustesController extends Controller
         ]);
 
         // Verificar contraseña
-        if (!Hash::check($request->contraseña_actual, $user->contraseña)) {
+        if (!Hash::check($request->contraseña_actual, $user->password)) {
             return back()->withErrors(['contraseña_actual' => 'La contraseña actual es incorrecta.'])->withInput();
         }
 
@@ -142,7 +142,7 @@ class AjustesController extends Controller
         $user = Auth::user();
 
         // Verificar contraseña
-        if (!Hash::check($request->contraseña_actual, $user->contraseña)) {
+        if (!Hash::check($request->contraseña_actual, $user->password)) {
             return back()->withErrors(['contraseña_actual' => 'La contraseña actual es incorrecta.'])->withInput();
         }
 
@@ -176,7 +176,7 @@ class AjustesController extends Controller
         ]);
 
         // Verificar contraseña
-        if (!Hash::check($request->contraseña_actual, $user->contraseña)) {
+        if (!Hash::check($request->contraseña_actual, $user->password)) {
             return back()->withErrors(['contraseña_actual' => 'La contraseña actual es incorrecta.'])->withInput();
         }
 
@@ -209,12 +209,12 @@ class AjustesController extends Controller
         $user = Auth::user();
 
         // Verificar contraseña actual
-        if (!Hash::check($request->contraseña_actual, $user->contraseña)) {
+        if (!Hash::check($request->contraseña_actual, $user->password)) {
             return back()->withErrors(['contraseña_actual' => 'La contraseña actual es incorrecta.'])->withInput();
         }
 
         // Actualizar contraseña
-        $user->contraseña = Hash::make($request->contraseña_nueva);
+        $user->password = Hash::make($request->contraseña_nueva);
         $user->save();
 
         return redirect()->route('ajustes.index')->with('success', 'Contraseña actualizada correctamente.');

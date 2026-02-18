@@ -18,8 +18,8 @@ return [
         'label'  => 'Tarde (1 pm - 7 pm)',
     ],
     'noche' => [
-        'inicio' => '18:00',
+        'inicio' => '19:00',
         'fin'    => '22:00',
-        'label'  => 'Noche (6 pm - 10 pm)',
+        'label'  => 'Noche (7 pm - 10 pm)',
     ],
 ];

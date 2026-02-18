@@ -99,7 +99,7 @@ class UsersController extends Controller
                 'regex:/^[A-Za-z0-9]+$/',
                 'unique:users,user',
             ],
-            'contraseña' => [
+            'password' => [
                 'required',
                 'string',
                 'min:8',
@@ -125,22 +125,22 @@ class UsersController extends Controller
             'user.max' => 'El usuario no puede tener más de 15 caracteres.',
             'user.regex' => 'El usuario solo puede contener letras y números (sin espacios).',
             'user.unique' => 'Este nombre de usuario ya está en uso. Por favor elige otro.',
-            'contraseña.required' => 'La contraseña es obligatoria.',
-            'contraseña.min' => 'La contraseña debe tener al menos 8 caracteres.',
-            'contraseña.regex' => 'La contraseña debe contener al menos una mayúscula, una minúscula, un número y un símbolo especial (@$!%*?&).',
-            'contraseña.confirmed' => 'Las contraseñas no coinciden.',
+            'password.required' => 'La contraseña es obligatoria.',
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+            'password.regex' => 'La contraseña debe contener al menos una mayúscula, una minúscula, un número y un símbolo especial (@$!%*?&).',
+            'password.confirmed' => 'Las contraseñas no coinciden.',
             'id_rol.required' => 'Debe seleccionar un rol.',
             'id_rol.in' => 'El rol seleccionado no es válido.',
         ]);
 
         $nuevo = User::create([
-            'id_cedula' => (string) $validated['id_cedula'], // Forzar a string
+            'id_cedula' => (string) $validated['id_cedula'],
             'nombre' => $validated['nombre'],
             'apellido' => $validated['apellido'],
             'correo' => $validated['correo'],
             'telefono' => $validated['telefono'] ?? null,
             'user' => $validated['user'],
-            'contraseña' => Hash::make($validated['contraseña']),
+            'password' => Hash::make($validated['password']),
             'id_rol' => $validated['id_rol'],
         ]);
 
@@ -224,8 +224,8 @@ class UsersController extends Controller
                 'regex:/^[A-Za-z0-9]+$/',
                 'unique:users,user,' . $user->id_cedula . ',id_cedula',
             ],
-            'contraseña_actual' => 'required_with:contraseña|nullable|string',
-            'contraseña' => [
+            'password_actual' => 'required_with:password|nullable|string',
+            'password' => [
                 'nullable',
                 'string',
                 'min:8',
@@ -248,20 +248,20 @@ class UsersController extends Controller
             'user.max' => 'El usuario no puede tener más de 15 caracteres.',
             'user.regex' => 'El usuario solo puede contener letras y números (sin espacios).',
             'user.unique' => 'Este nombre de usuario ya está en uso. Por favor elige otro.',
-            'contraseña_actual.required_with' => 'Para cambiar la contraseña debes ingresar la contraseña actual del usuario.',
-            'contraseña.min' => 'La contraseña debe tener al menos 8 caracteres.',
-            'contraseña.regex' => 'La contraseña debe contener al menos una mayúscula, una minúscula, un número y un símbolo especial (@$!%*?&).',
-            'contraseña.confirmed' => 'Las contraseñas no coinciden.',
+            'password_actual.required_with' => 'Para cambiar la contraseña debes ingresar la contraseña actual del usuario.',
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+            'password.regex' => 'La contraseña debe contener al menos una mayúscula, una minúscula, un número y un símbolo especial (@$!%*?&).',
+            'password.confirmed' => 'Las contraseñas no coinciden.',
             'id_rol.required' => 'Debe seleccionar un rol.',
             'id_rol.in' => 'El rol seleccionado no es válido.',
         ]);
 
         // Si se va a cambiar la contraseña, verificar que la contraseña actual sea correcta
-        if ($request->filled('contraseña')) {
-            if (!Hash::check($request->contraseña_actual, $user->contraseña)) {
+        if ($request->filled('password')) {
+            if (!Hash::check($request->password_actual, $user->password)) {
                 return redirect()
                     ->back()
-                    ->withErrors(['contraseña_actual' => 'La contraseña actual del usuario es incorrecta.'])
+                    ->withErrors(['password_actual' => 'La contraseña actual del usuario es incorrecta.'])
                     ->withInput();
             }
         }
@@ -274,8 +274,8 @@ class UsersController extends Controller
         $user->id_rol = $validated['id_rol'];
 
         // Actualizar contraseña solo si se proporciona
-        if (!empty($validated['contraseña'])) {
-            $user->contraseña = Hash::make($validated['contraseña']);
+        if (!empty($validated['password'])) {
+            $user->password = Hash::make($validated['password']);
         }
 
         $user->save();

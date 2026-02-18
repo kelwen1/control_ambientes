@@ -64,18 +64,18 @@ class AuthController extends Controller
 
         $request->validate([
             'user' => 'required|string|max:255',
-            'contraseña' => 'required|string|max:255',
+            'password' => 'required|string|max:255',
         ]);
 
         // Sanitizar inputs
         $username = trim($request->input('user'));
-        $password = $request->input('contraseña');
+        $password = $request->input('password');
 
         // Buscar usuario
         $user = User::where('user', $username)->first();
 
         // Mensaje genérico para no revelar si el usuario existe
-        if (!$user || !Hash::check($password, $user->contraseña)) {
+        if (!$user || !Hash::check($password, $user->password)) {
             // Incrementar contador de intentos fallidos
             $newAttempts = $loginAttempts + 1;
             $request->session()->put('login_attempts', $newAttempts);
@@ -146,7 +146,7 @@ class AuthController extends Controller
             'correo' => 'required|email|unique:users,correo',
             'telefono' => 'nullable|string|max:20',
             'user' => 'required|string|unique:users,user|max:255',
-            'contraseña' => 'required|string|min:8|confirmed',
+            'password' => 'required|string|min:8|confirmed',
             'id_rol' => 'required|integer|in:1,2,3',
         ], [
             'id_cedula.required' => 'El número de cédula es obligatorio.',
@@ -158,9 +158,9 @@ class AuthController extends Controller
             'correo.unique' => 'Este correo electrónico ya está registrado.',
             'user.required' => 'El nombre de usuario es obligatorio.',
             'user.unique' => 'Este nombre de usuario ya está en uso. Por favor elige otro.',
-            'contraseña.required' => 'La contraseña es obligatoria.',
-            'contraseña.min' => 'La contraseña debe tener al menos 8 caracteres.',
-            'contraseña.confirmed' => 'Las contraseñas no coinciden.',
+            'password.required' => 'La contraseña es obligatoria.',
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+            'password.confirmed' => 'Las contraseñas no coinciden.',
             'id_rol.required' => 'Debe seleccionar un rol.',
             'id_rol.in' => 'El rol seleccionado no es válido.',
         ]);
@@ -172,7 +172,7 @@ class AuthController extends Controller
             'correo' => $validated['correo'],
             'telefono' => $validated['telefono'] ?? null,
             'user' => $validated['user'],
-            'contraseña' => Hash::make($validated['contraseña']),
+            'password' => Hash::make($validated['password']),
             'id_rol' => $validated['id_rol'],
         ]);
 

@@ -19,8 +19,7 @@ return new class extends Migration
             $table->string('correo')->unique();
             $table->string('telefono')->nullable();
             $table->string('user')->unique();
-            // Usamos siempre el nombre de columna "contraseña" para ser consistentes con la base de datos actual
-            $table->string('contraseña');
+            $table->string('password');
             $table->integer('id_rol')->default(2); // 1=Admin, 2=Usuario
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();

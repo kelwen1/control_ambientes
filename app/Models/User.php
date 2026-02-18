@@ -57,7 +57,7 @@ class User extends Authenticatable
         'correo',
         'telefono',
         'user',
-        'contraseña',
+        'password',
         'id_rol',
     ];
 
@@ -67,7 +67,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $hidden = [
-        'contraseña',
+        'password',
     ];
 
     /**
@@ -79,20 +79,9 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'contraseña' => 'hashed',
-            'id_cedula' => 'string', // Asegurar que se maneje como string
+            'password' => 'hashed',
+            'id_cedula' => 'string',
         ];
-    }
-
-    /**
-     * Override para indicarle a Laravel qué atributo usar como contraseña.
-     *
-     * Esto asegura que cualquier flujo interno de autenticación que espere
-     * el campo "password" utilice realmente el atributo "contraseña".
-     */
-    public function getAuthPassword()
-    {
-        return $this->contraseña;
     }
 
     /**

@@ -160,10 +160,10 @@
 
                     <!-- Contraseña -->
                     <div>
-                        <label for="contraseña" class="block text-gray-700 font-semibold mb-2 text-sm sm:text-base">Contraseña *</label>
+                        <label for="password" class="block text-gray-700 font-semibold mb-2 text-sm sm:text-base">Contraseña *</label>
                         <input type="password" 
-                               id="contraseña" 
-                               name="contraseña" 
+                               id="password" 
+                               name="password" 
                                required
                                class="w-full px-3 sm:px-4 py-2 sm:py-3 border-2 border-gray-300 rounded-lg focus:border-[#39B54A] focus:outline-none transition-colors text-sm sm:text-base"
                                placeholder="Mínimo 8 caracteres">
@@ -171,10 +171,10 @@
 
                     <!-- Confirmar Contraseña -->
                     <div>
-                        <label for="contraseña_confirmation" class="block text-gray-700 font-semibold mb-2 text-sm sm:text-base">Confirmar Contraseña *</label>
+                        <label for="password_confirmation" class="block text-gray-700 font-semibold mb-2 text-sm sm:text-base">Confirmar Contraseña *</label>
                         <input type="password" 
-                               id="contraseña_confirmation" 
-                               name="contraseña_confirmation" 
+                               id="password_confirmation" 
+                               name="password_confirmation" 
                                required
                                class="w-full px-3 sm:px-4 py-2 sm:py-3 border-2 border-gray-300 rounded-lg focus:border-[#39B54A] focus:outline-none transition-colors text-sm sm:text-base"
                                placeholder="Confirma tu contraseña">

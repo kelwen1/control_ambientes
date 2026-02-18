@@ -35,7 +35,7 @@
                     <option value="">Seleccione</option>
                     <option value="manana" {{ ($jornada ?? '') == 'manana' ? 'selected' : '' }}>Mañana (7 am - 1 pm)</option>
                     <option value="tarde" {{ ($jornada ?? '') == 'tarde' ? 'selected' : '' }}>Tarde (1 pm - 7 pm)</option>
-                    <option value="noche" {{ ($jornada ?? '') == 'noche' ? 'selected' : '' }}>Noche (6 pm - 10 pm)</option>
+                    <option value="noche" {{ ($jornada ?? '') == 'noche' ? 'selected' : '' }}>Noche (7 pm - 10 pm)</option>
                 </select>
             </div>
             <button type="submit" 

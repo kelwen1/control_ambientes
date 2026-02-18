@@ -8,14 +8,14 @@ use Illuminate\Support\Facades\DB;
 class AmbientesController extends Controller
 {
     /**
-     * Rangos de hora por jornada (mañana, tarde, noche).
-     * Mañana: 7 am - 1 pm | Tarde: 1 pm - 7 pm | Noche: 6 pm - 10 pm
+     * Rangos de hora por jornada (mañana, tarde, noche). Sin solapamiento para permitir
+     * hasta 3 reservas el mismo día: mañana 7-13, tarde 13-19, noche 19-22.
      * Se usan con segundos (HH:MM:SS) para comparación correcta con TIME en MySQL.
      */
     private const JORNADAS = [
         'manana' => ['inicio' => '07:00:00', 'fin' => '13:00:00'],
         'tarde'  => ['inicio' => '13:00:00', 'fin' => '19:00:00'],
-        'noche'  => ['inicio' => '18:00:00', 'fin' => '22:00:00'],
+        'noche'  => ['inicio' => '19:00:00', 'fin' => '22:00:00'],
     ];
 
     /**

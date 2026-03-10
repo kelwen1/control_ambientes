@@ -133,17 +133,17 @@
                 </div>
 
                 <div class="mb-4 sm:mb-6">
-                    <label for="password" class="block text-gray-700 font-semibold mb-2 text-sm sm:text-base">Contraseña</label>
+                    <label for="contraseña" class="block text-gray-700 font-semibold mb-2 text-sm sm:text-base">Contraseña</label>
                     <div class="relative">
                         <input type="password" 
-                               id="password" 
-                               name="password" 
+                               id="contraseña" 
+                               name="contraseña" 
                                required
                                @if (isset($isLocked) && $isLocked) disabled @endif
                                class="w-full px-3 sm:px-4 py-2 sm:py-3 pr-10 border-2 border-gray-300 rounded-lg focus:border-[#39B54A] focus:outline-none transition-colors text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                                placeholder="Ingresa tu contraseña">
                         <button type="button" 
-                                onclick="togglePassword('password', this)" 
+                                onclick="togglePassword('contraseña', this)" 
                                 class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-gray-500 hover:text-gray-700 focus:outline-none disabled:opacity-50"
                                 tabindex="-1"
                                 aria-label="Mostrar contraseña">
@@ -169,12 +169,7 @@
                 </button>
             </form>
 
-            {{-- Enlace de registro comentado temporalmente --}}
-            {{-- <div class="mt-4 sm:mt-6 text-center">
-                <a href="{{ route('register') }}" class="text-sm sm:text-base text-[#39B54A] hover:underline font-medium">
-                    ¿No tienes cuenta? Regístrate aquí
-                </a>
-            </div> --}}
+            {{-- Registro deshabilitado --}}
         </div>
     </div>
 

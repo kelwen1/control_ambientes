@@ -47,12 +47,13 @@ class DisponibilidadFeatureTest extends TestCase
             'fecha_productiva' => null,
         ]);
 
+        // Sábados y domingos: una sola reserva por ambiente (7:00-17:00)
         Reserva::create([
             'id_ambiente' => $this->ambienteOcupadoSabadoTarde->id_ambiente,
             'id_ficha' => $ficha->id_ficha,
             'dia_semana' => 'sabado',
-            'hora_inicio' => '13:00:00',
-            'hora_fin' => '19:00:00',
+            'hora_inicio' => '07:00:00',
+            'hora_fin' => '17:00:00',
             'fecha_inicio' => '2026-01-07',
             'fecha_fin' => '2026-02-06',
             'id_estado_reserva' => 1,
@@ -103,11 +104,11 @@ class DisponibilidadFeatureTest extends TestCase
     }
 
     /** @test */
-    public function disponibilidad_sabado_tarde_excluye_ambiente_con_reserva_activa(): void
+    public function disponibilidad_sabado_fin_semana_excluye_ambiente_con_reserva_activa(): void
     {
         $response = $this->actingAs($this->user)->get(route('ambientes.disponibilidad', [
-            'dia_tipo' => 'sabado_domingo',
-            'jornada' => 'tarde',
+            'dia_tipo' => 'sabado',
+            'jornada' => 'fin_semana',
         ]));
 
         $response->assertStatus(200);
@@ -118,17 +119,18 @@ class DisponibilidadFeatureTest extends TestCase
     }
 
     /** @test */
-    public function disponibilidad_sabado_manana_incluye_ambiente_30(): void
+    public function disponibilidad_domingo_fin_semana_incluye_ambiente_sin_reserva_domingo(): void
     {
         $response = $this->actingAs($this->user)->get(route('ambientes.disponibilidad', [
-            'dia_tipo' => 'sabado_domingo',
-            'jornada' => 'manana',
+            'dia_tipo' => 'domingo',
+            'jornada' => 'fin_semana',
         ]));
 
         $response->assertStatus(200);
         $ambientes = $response->viewData('ambientes');
         $nums = $ambientes->pluck('num_ambiente')->map(fn ($n) => (string) $n)->toArray();
-        $this->assertContains('30', $nums, 'El ambiente 30 debe estar disponible sábado mañana (sin reserva en esa jornada).');
+        $this->assertContains('28', $nums);
+        $this->assertContains('30', $nums, 'El ambiente 30 no tiene reserva el domingo, debe estar disponible.');
     }
 
     /** @test */

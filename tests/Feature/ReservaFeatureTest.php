@@ -104,12 +104,13 @@ class ReservaFeatureTest extends TestCase
     /** @test */
     public function formulario_editar_reserva_muestra_datos_y_preselecciona_jornada(): void
     {
+        // Sábados/domingos: una sola jornada 7:00-17:00
         $reserva = Reserva::create([
             'id_ambiente' => $this->ambiente->id_ambiente,
             'id_ficha' => $this->ficha->id_ficha,
             'dia_semana' => 'sabado',
-            'hora_inicio' => '13:00',
-            'hora_fin' => '19:00',
+            'hora_inicio' => '07:00',
+            'hora_fin' => '17:00',
             'fecha_inicio' => '2026-02-01',
             'fecha_fin' => '2026-02-28',
             'id_estado_reserva' => 1,
@@ -122,7 +123,7 @@ class ReservaFeatureTest extends TestCase
         $response->assertViewIs('reservas.edit');
         $response->assertViewHas('reserva');
         $response->assertViewHas('jornadas');
-        $response->assertViewHas('jornadaSeleccionada', 'tarde');
+        $response->assertViewHas('jornadaSeleccionada', 'fin_semana');
     }
 
     /** @test */

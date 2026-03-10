@@ -36,7 +36,7 @@
                 <td>{{ $r->num_ambiente ?? 'N/A' }}</td>
                 <td>{{ $r->num_ficha ?? 'N/A' }}</td>
                 <td>{{ $r->nombre_estado ?? 'N/A' }}</td>
-                <td>{{ ucfirst($r->dia_semana) }}</td>
+                <td>@if($r->dia_semana == 'lunes') Lunes a Viernes @elseif($r->dia_semana == 'sabado') Sábados @elseif($r->dia_semana == 'domingo') Domingos @else {{ ucfirst($r->dia_semana ?? 'N/A') }} @endif</td>
                 <td>{{ $r->hora_inicio }}</td>
                 <td>{{ $r->hora_fin }}</td>
                 <td>{{ $r->fecha_inicio ? \Carbon\Carbon::parse($r->fecha_inicio)->format('d/m/Y') : 'N/A' }}</td>

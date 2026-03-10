@@ -49,6 +49,7 @@ class Reserva extends Model
     protected $fillable = [
         'id_ambiente',
         'id_ficha',
+        'id_persona',
         'dia_semana',
         'hora_inicio',
         'hora_fin',
@@ -59,7 +60,7 @@ class Reserva extends Model
     ];
 
     /**
-     * Get the ambiente that owns the reserva.
+     * Ambiente reservado.
      */
     public function ambiente()
     {
@@ -67,11 +68,19 @@ class Reserva extends Model
     }
 
     /**
-     * Get the ficha that owns the reserva.
+     * Ficha asignada.
      */
     public function ficha()
     {
         return $this->belongsTo(Ficha::class, 'id_ficha', 'id_ficha');
+    }
+
+    /**
+     * Instructor asignado (persona que da la clase).
+     */
+    public function persona()
+    {
+        return $this->belongsTo(Persona::class, 'id_persona', 'id_persona');
     }
 }
 

@@ -49,5 +49,13 @@ class Programa extends Model
     protected $fillable = [
         'nombre_programa',
     ];
+
+    /**
+     * Competencias del programa (SENA).
+     */
+    public function competencias()
+    {
+        return $this->hasMany(Competencia::class, 'id_programa');
+    }
 }
 

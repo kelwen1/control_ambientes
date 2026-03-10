@@ -14,8 +14,8 @@ class StoreReservaRequest extends FormRequest
     {
         $user = $this->user();
 
-        // Solo permitir a usuarios autenticados con roles válidos (1 = admin, 2 = usuario)
-        return $user && in_array($user->id_rol, [1, 2, 3], true);
+        // Roles: administrador, coordinacion_L, coordinacion, instructor
+        return $user && in_array($user->id_rol, array_values(config('roles.ids', [1, 2, 3, 4])), true);
     }
 
     /**
@@ -28,8 +28,18 @@ class StoreReservaRequest extends FormRequest
         return [
             'id_ambiente' => 'required|integer|exists:ambientes,id_ambiente',
             'id_ficha' => 'required|integer|exists:ficha,id_ficha',
-            'dia_semana' => 'required|in:lunes,sabado',
-            'hora_inicio' => 'required|date_format:H:i',
+            'id_persona' => 'nullable|exists:persona,id_persona',
+            'dia_semana' => 'required|in:lunes,sabado,domingo',
+            'hora_inicio' => [
+                'required',
+                'date_format:H:i',
+                function ($attribute, $value, $fail) {
+                    $dia = $this->dia_semana ?? '';
+                    if (in_array($dia, ['sabado', 'domingo'], true) && $value !== '07:00') {
+                        $fail('Los sábados y domingos el horario es único: 7:00 - 17:00 (todo el día).');
+                    }
+                },
+            ],
             'hora_fin' => [
                 'required',
                 'date_format:H:i',
@@ -40,6 +50,10 @@ class StoreReservaRequest extends FormRequest
                         if ($horaFin->lte($horaInicio)) {
                             $fail('La hora de fin debe ser posterior a la hora de inicio.');
                         }
+                    }
+                    $dia = $this->dia_semana ?? '';
+                    if (in_array($dia, ['sabado', 'domingo'], true) && $value !== '17:00') {
+                        $fail('Los sábados y domingos el horario es único: 7:00 - 17:00 (todo el día).');
                     }
                 },
             ],

@@ -17,11 +17,38 @@ class SecurityHeaders
     {
         $response = $next($request);
 
+        // Prevenir que el navegador interprete content-type incorrectamente (ej: MIME sniffing)
         $response->headers->set('X-Content-Type-Options', 'nosniff');
+        // Evitar que la app se cargue en iframes de otros sitios (clickjacking)
         $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
+        // Activación del filtro XSS del navegador (legacy, CSP es más moderno)
         $response->headers->set('X-XSS-Protection', '1; mode=block');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
         $response->headers->set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+
+        // Content-Security-Policy: limita orígenes de scripts, estilos, imágenes, etc. para mitigar XSS.
+        // Incluye 'unsafe-inline' porque Laravel/Blade usa scripts inline.
+        // cdn.tailwindcss.com: Tailwind CSS desde CDN (script que genera los estilos).
+        $csp = implode('; ', [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com",
+            "style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com",
+            "img-src 'self' data: https:",
+            "font-src 'self'",
+            "connect-src 'self'",
+            "base-uri 'self'",
+            "form-action 'self'",
+            "frame-ancestors 'self'",
+        ]);
+        $response->headers->set('Content-Security-Policy', $csp);
+
+        // HSTS: solo en producción y fuera de localhost. Obliga al navegador a usar HTTPS
+        // durante 1 año, reduciendo ataques de downgrade.
+        $host = $request->getHost();
+        $isLocal = in_array($host, ['localhost', '127.0.0.1'], true) || str_starts_with($host, '127.');
+        if (config('app.env') === 'production' && !$isLocal) {
+            $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+        }
 
         return $response;
     }

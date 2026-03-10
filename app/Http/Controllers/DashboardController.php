@@ -50,6 +50,8 @@ class DashboardController extends Controller
             ->where('fecha_fin', '<', '2026-01-01')
             ->count();
         
+        $esInstructor = auth()->user()->isInstructor();
+
         return view('dashboard', [
             'totalAmbientes' => $totalAmbientes,
             'ambientesDisponibles' => $ambientesDisponibles,
@@ -58,7 +60,8 @@ class DashboardController extends Controller
             'usuariosActivos' => $usuariosActivos,
             'totalFichas' => $totalFichas,
             'fichasActivas' => $fichasActivas,
-            'fichasInactivas' => $fichasInactivas
+            'fichasInactivas' => $fichasInactivas,
+            'esInstructor' => $esInstructor,
         ]);
     }
 }

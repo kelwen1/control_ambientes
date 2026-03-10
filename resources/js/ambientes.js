@@ -11,7 +11,7 @@ window.openDeleteModal = function(id) {
 
     if (form) {
         // Usar la URL base generada por Laravel (soporta subcarpetas)
-        const baseUrl = form.dataset.baseUrl || (window.location.origin + '/reservas');
+        const baseUrl = form.dataset.baseUrl || (window.location.origin + '/s/asignacion');
         form.action = `${baseUrl}/${id}`;
     }
 

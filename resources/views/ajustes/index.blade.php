@@ -124,10 +124,15 @@
                 <div class="border-b border-gray-200 pb-4">
                     <label class="block text-sm font-medium text-gray-600 mb-1">Rol</label>
                     <p class="text-gray-800 font-semibold">
-                        @if($user->id_rol == 1)
-                            <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">Administrador</span>
+                        @php $idRol = (int) $user->id_rol; @endphp
+                        @if($idRol === config('roles.ids.administrador', 1))
+                            <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">administrador</span>
+                        @elseif($idRol === config('roles.ids.coordinacion_L', 2))
+                            <span class="px-2 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-medium">coordinacion_L</span>
+                        @elseif($idRol === config('roles.ids.coordinacion', 3))
+                            <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">coordinacion</span>
                         @else
-                            <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">Usuario</span>
+                            <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">{{ $user->persona->rol->rol ?? 'instructor' }}</span>
                         @endif
                     </p>
                     <p class="text-xs text-gray-500 mt-1">No se puede modificar</p>

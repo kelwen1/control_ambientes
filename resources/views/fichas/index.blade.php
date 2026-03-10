@@ -182,7 +182,7 @@
                             class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold text-base hover:bg-gray-400 transition-colors shadow-lg">
                         Cancelar
                     </button>
-                    <form id="deleteForm" method="POST" class="flex-1">
+                    <form id="deleteForm" method="POST" class="flex-1" data-base-url="{{ str_replace('/0', '', route('fichas.destroy', ['id' => 0])) }}">
                         @csrf
                         @method('DELETE')
                         <button type="submit" 
@@ -304,9 +304,9 @@
                     fichaNumElement.textContent = fichaNum;
                 }
                 
-                // Configurar la acción del formulario - construir URL directamente
-                const actionUrl = '/fichas/' + id;
-                form.action = actionUrl;
+                // Configurar la acción del formulario (URL desde Laravel para no exponer ruta real)
+                const baseUrl = form.dataset.baseUrl || (window.location.origin + '/s/formacion');
+                form.action = baseUrl + '/' + id;
                 
                 // Debug: mostrar en consola para verificar
                 console.log('Form action ANTES:', form.getAttribute('action'));

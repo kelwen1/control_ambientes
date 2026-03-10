@@ -100,6 +100,28 @@
                 </div>
             </div>
 
+            <!-- Instructor -->
+            @if(isset($instructores) && $instructores->isNotEmpty())
+            <div>
+                <label for="id_persona" class="block text-sm sm:text-base font-semibold text-gray-700 mb-2">
+                    Instructor asignado
+                </label>
+                <select name="id_persona" id="id_persona"
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#39B54A] focus:outline-none transition-colors text-sm sm:text-base">
+                    <option value="">Sin asignar</option>
+                    @foreach($instructores as $inst)
+                        <option value="{{ $inst->id_persona }}" {{ old('id_persona') == $inst->id_persona ? 'selected' : '' }}>
+                            {{ $inst->nombres }} {{ $inst->apellidos }}
+                        </option>
+                    @endforeach
+                </select>
+                <p class="mt-1 text-sm text-gray-500">El instructor verá esta reserva en su tablero "Mi jornada".</p>
+                @error('id_persona')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+            @endif
+
             <!-- Día de la semana -->
             <div>
                 <label for="dia_semana" class="block text-sm sm:text-base font-semibold text-gray-700 mb-2">
@@ -112,7 +134,9 @@
                     <option value="">Seleccione un día</option>
                     <option value="lunes" {{ old('dia_semana') == 'lunes' ? 'selected' : '' }}>Lunes a Viernes</option>
                     <option value="sabado" {{ old('dia_semana') == 'sabado' ? 'selected' : '' }}>Sábados</option>
+                    <option value="domingo" {{ old('dia_semana') == 'domingo' ? 'selected' : '' }}>Domingos</option>
                 </select>
+                <p class="mt-1 text-sm text-gray-500">Sábados y domingos: horario único 7 am - 5 pm (una reserva por ambiente por día).</p>
                 @error('dia_semana')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
@@ -252,9 +276,34 @@
             initSelectSearch('ambiente_search', 'id_ambiente');
             initSelectSearch('ficha_search', 'id_ficha');
 
+            const diaSemanaSelect = document.getElementById('dia_semana');
             const jornadaSelect = document.getElementById('jornada');
             const horaInicioInput = document.getElementById('hora_inicio');
             const horaFinInput = document.getElementById('hora_fin');
+
+            function esFinDeSemana() {
+                return diaSemanaSelect && (diaSemanaSelect.value === 'sabado' || diaSemanaSelect.value === 'domingo');
+            }
+
+            function actualizarOpcionesJornada() {
+                if (!jornadaSelect) return;
+                var opts = jornadaSelect.querySelectorAll('option[value="manana"], option[value="tarde"], option[value="noche"], option[value="fin_semana"]');
+                opts.forEach(function(o) {
+                    if (esFinDeSemana()) {
+                        o.style.display = o.value === 'fin_semana' ? '' : 'none';
+                        if (jornadaSelect.value !== 'fin_semana') {
+                            jornadaSelect.value = 'fin_semana';
+                        }
+                    } else {
+                        o.style.display = o.value === 'fin_semana' ? 'none' : '';
+                        if (jornadaSelect.value === 'fin_semana') {
+                            jornadaSelect.value = 'manana';
+                        }
+                    }
+                });
+                actualizarHorasDesdeJornada();
+            }
+
             function actualizarHorasDesdeJornada() {
                 if (!jornadaSelect || !jornadaSelect.value) {
                     horaInicioInput.value = '';
@@ -270,6 +319,10 @@
             if (jornadaSelect) {
                 jornadaSelect.addEventListener('change', actualizarHorasDesdeJornada);
                 actualizarHorasDesdeJornada();
+            }
+            if (diaSemanaSelect) {
+                diaSemanaSelect.addEventListener('change', actualizarOpcionesJornada);
+                actualizarOpcionesJornada();
             }
 
             const ambienteSelect = document.getElementById('id_ambiente');

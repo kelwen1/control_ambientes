@@ -11,6 +11,23 @@
         <p class="text-gray-600 text-sm sm:text-base">Panel principal de gestión y administración</p>
     </div>
 
+    @if(!empty($esInstructor))
+    <!-- Tablero instructor: Mi jornada L-V -->
+    <div class="mb-6 sm:mb-8">
+        <div class="bg-white rounded-xl shadow-lg p-6 sm:p-8 border-l-4 border-[#39B54A]">
+            <h2 class="text-xl sm:text-2xl font-bold text-gray-800 flex items-center gap-2 mb-2">
+                <span class="text-2xl">📅</span>
+                Mi jornada semanal
+            </h2>
+            <p class="text-gray-600 text-sm sm:text-base mb-4">Consulta en qué salón te toca, con qué ficha y en qué horario de lunes a viernes.</p>
+            <a href="{{ route('instructor.tablero') }}"
+               class="inline-flex items-center gap-2 px-5 py-3 bg-[#39B54A] text-white rounded-lg hover:bg-[#2d8f3a] transition-colors font-semibold">
+                Ver mi tablero L-V →
+            </a>
+        </div>
+    </div>
+    @endif
+
     <!-- Contadores principales -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
         <!-- Contador: Ambientes Disponibles -->
@@ -139,11 +156,6 @@
                    class="p-4 bg-blue-500 bg-opacity-10 hover:bg-opacity-20 rounded-lg transition-colors text-center group">
                     <span class="text-3xl sm:text-4xl block mb-2 group-hover:scale-110 transition-transform">🏛️</span>
                     <p class="text-xs sm:text-sm font-semibold text-gray-700">Gestionar Ambientes</p>
-                </a>
-                <a href="{{ route('inventario.index') }}" 
-                   class="p-4 bg-orange-500 bg-opacity-10 hover:bg-opacity-20 rounded-lg transition-colors text-center group">
-                    <span class="text-3xl sm:text-4xl block mb-2 group-hover:scale-110 transition-transform">📦</span>
-                    <p class="text-xs sm:text-sm font-semibold text-gray-700">Ver Inventario</p>
                 </a>
                 <a href="{{ route('ajustes.index') }}" 
                    class="p-4 bg-purple-500 bg-opacity-10 hover:bg-opacity-20 rounded-lg transition-colors text-center group">

@@ -22,7 +22,7 @@ class CoordinatorViewOnlyMiddleware
 
         $user = auth()->user();
 
-        // Solo aplicamos restricción al rol Coordinador (id_rol = 2)
+        // Restricción para coordinacion_L (2) y coordinacion (3): solo ver, no crear/editar/eliminar
         if (!$user->isCoordinator()) {
             return $next($request);
         }

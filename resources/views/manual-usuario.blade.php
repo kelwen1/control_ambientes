@@ -77,7 +77,6 @@
                 <li><span class="font-semibold">Fichas de formación</span>: grupos de aprendices y su programa.</li>
                 <li><span class="font-semibold">Ambientes</span>: salones/laboratorios disponibles en el centro.</li>
                 <li><span class="font-semibold">Reservas</span>: asignación de ambientes a fichas por día y horario.</li>
-                <li><span class="font-semibold">Inventario</span>: elementos disponibles en cada ambiente.</li>
                 <li><span class="font-semibold">Usuarios</span>: cuentas de acceso (solo administradores).</li>
                 <li><span class="font-semibold">Ajustes</span>: datos personales y credenciales del usuario actual.</li>
             </ul>
@@ -91,7 +90,7 @@
                     <span class="font-semibold">Administrador</span>: acceso total al sistema.
                     <ul class="list-disc list-inside ml-5 mt-1">
                         <li>Gestiona usuarios (crear, editar, eliminar).</li>
-                        <li>Gestiona fichas, ambientes, reservas e inventario.</li>
+                        <li>Gestiona fichas, ambientes y reservas.</li>
                         <li>Accede a todos los reportes (exportaciones en PDF).</li>
                     </ul>
                 </li>
@@ -99,7 +98,7 @@
                     <span class="font-semibold">Coordinador</span>: acceso de solo consulta a algunos módulos.
                     <ul class="list-disc list-inside ml-5 mt-1">
                         <li>Puede buscar y visualizar fichas.</li>
-                        <li>Puede consultar ambientes, reservas e inventario.</li>
+                        <li>Puede consultar ambientes y reservas.</li>
                         <li>Puede descargar reportes en PDF.</li>
                         <li>No puede crear/editar/eliminar registros.</li>
                     </ul>
@@ -107,7 +106,7 @@
                 <li>
                     <span class="font-semibold">Usuario</span>: normalmente instructores o personal operativo.
                     <ul class="list-disc list-inside ml-5 mt-1">
-                        <li>Puede gestionar fichas, reservas, inventario (según permisos).</li>
+                        <li>Puede gestionar fichas y reservas (según permisos).</li>
                         <li>Puede consultar la información actualizada de los ambientes.</li>
                     </ul>
                 </li>
@@ -169,21 +168,7 @@
             </p>
         </section>
 
-        <section class="mb-8 bg-white rounded-xl shadow p-5">
-            <h2 class="text-xl font-bold mb-3">7. Gestión de Inventario</h2>
-            <p class="text-sm mb-2">
-                Módulo para registrar qué elementos tiene cada ambiente (computadores, sillas, mesas, aire acondicionado, tablero, televisor, ventiladores, videobeam, herramientas, etc.).
-            </p>
-            <ul class="list-disc list-inside space-y-1 text-sm mb-2">
-                <li><span class="font-semibold">Listado</span>: muestra por ambiente si cada elemento está presente (<span class="font-semibold">Sí/No</span>).</li>
-                <li><span class="font-semibold">Buscar por ambiente</span>: filtra por número de ambiente.</li>
-                <li><span class="font-semibold">Crear / Editar / Eliminar inventario</span>: disponible para administradores/usuarios con permisos.</li>
-                <li><span class="font-semibold">Reportes</span>: botón con modal para descargar un <span class="font-semibold">PDF</span> con el inventario consolidado.</li>
-            </ul>
-            <p class="text-xs text-gray-500">
-                Importante: solo se permite un registro de inventario por ambiente; si ya existe, debe editarse en lugar de crear uno nuevo.
-            </p>
-        </section>
+        {{-- Sección de inventario eliminada: el módulo ya no está disponible --}}
 
         <section class="mb-8 bg-white rounded-xl shadow p-5">
             <h2 class="text-xl font-bold mb-3">8. Gestión de Usuarios (solo administradores)</h2>

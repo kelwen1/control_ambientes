@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Reserva;
 use App\Models\Ambiente;
 use App\Models\Ficha;
+use App\Models\Persona;
 use App\Models\SecurityAuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -73,10 +74,16 @@ class ReservasController extends Controller
 
         $jornadas = config('jornadas');
 
+        $instructores = Persona::where('id_rol', config('roles.ids.instructor', 4))
+            ->whereHas('user')
+            ->orderBy('nombres')
+            ->get(['id_persona', 'nombres', 'apellidos']);
+
         return view('reservas.create', [
             'ambientes' => $ambientes,
             'fichas' => $fichas,
-            'jornadas' => $jornadas
+            'jornadas' => $jornadas,
+            'instructores' => $instructores,
         ]);
     }
 
@@ -136,6 +143,7 @@ class ReservasController extends Controller
         $reserva = Reserva::create([
             'id_ambiente' => $request->id_ambiente,
             'id_ficha' => $request->id_ficha,
+            'id_persona' => $request->id_persona ?: null,
             'dia_semana' => $request->dia_semana,
             'hora_inicio' => $request->hora_inicio,
             'hora_fin' => $request->hora_fin,
@@ -184,6 +192,7 @@ class ReservasController extends Controller
                 'reservas.id_reserva',
                 'reservas.id_ambiente',
                 'reservas.id_ficha',
+                'reservas.id_persona',
                 'reservas.dia_semana',
                 'reservas.hora_inicio',
                 'reservas.hora_fin',
@@ -220,12 +229,21 @@ class ReservasController extends Controller
             ->get();
 
         $jornadas = config('jornadas');
+        $instructores = Persona::where('id_rol', config('roles.ids.instructor', 4))
+            ->whereHas('user')
+            ->orderBy('nombres')
+            ->get(['id_persona', 'nombres', 'apellidos']);
         $horaInicio = $reserva->hora_inicio ? \Carbon\Carbon::parse($reserva->hora_inicio)->format('H:i') : null;
+        $diaSemana = $reserva->dia_semana ?? '';
         $jornadaSeleccionada = null;
-        foreach ($jornadas as $key => $j) {
-            if ($horaInicio === $j['inicio']) {
-                $jornadaSeleccionada = $key;
-                break;
+        if (in_array($diaSemana, ['sabado', 'domingo'], true) && $horaInicio === '07:00') {
+            $jornadaSeleccionada = 'fin_semana';
+        } else {
+            foreach ($jornadas as $key => $j) {
+                if ($horaInicio === $j['inicio']) {
+                    $jornadaSeleccionada = $key;
+                    break;
+                }
             }
         }
 
@@ -234,6 +252,7 @@ class ReservasController extends Controller
             'ambientes' => $ambientes,
             'fichas' => $fichas,
             'estados' => $estados,
+            'instructores' => $instructores,
             'jornadas' => $jornadas,
             'jornadaSeleccionada' => $jornadaSeleccionada
         ]);
@@ -302,6 +321,7 @@ class ReservasController extends Controller
         $reserva->update([
             'id_ambiente' => $request->id_ambiente,
             'id_ficha' => $request->id_ficha,
+            'id_persona' => $request->id_persona ?: null,
             'dia_semana' => $request->dia_semana,
             'hora_inicio' => $request->hora_inicio,
             'hora_fin' => $request->hora_fin,

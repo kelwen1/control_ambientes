@@ -92,7 +92,7 @@ Middleware: auth, force.https, throttle:20,1
 StoreReservaRequest valida:
    - id_ambiente: required|integer|exists
    - id_ficha: required|integer|exists
-   - dia_semana: required|in:lunes,sabado
+   - dia_semana: required|in:lunes,sabado,domingo (sábado/domingo: solo horario 7:00-17:00)
    - hora_inicio: required|date_format:H:i
    - hora_fin: required|date_format:H:i|after:hora_inicio
    - fecha_inicio: required|date

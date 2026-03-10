@@ -23,7 +23,8 @@
                         class="px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-[#39B54A] focus:outline-none text-sm">
                     <option value="">Seleccione</option>
                     <option value="lunes_viernes" {{ ($dia_tipo ?? '') == 'lunes_viernes' ? 'selected' : '' }}>Lunes a Viernes</option>
-                    <option value="sabado_domingo" {{ ($dia_tipo ?? '') == 'sabado_domingo' ? 'selected' : '' }}>Sábados y Domingos</option>
+                    <option value="sabado" {{ ($dia_tipo ?? '') == 'sabado' ? 'selected' : '' }}>Sábados</option>
+                    <option value="domingo" {{ ($dia_tipo ?? '') == 'domingo' ? 'selected' : '' }}>Domingos</option>
                 </select>
             </div>
             <div>
@@ -32,10 +33,11 @@
                         id="jornada" 
                         required
                         class="px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-[#39B54A] focus:outline-none text-sm">
-                    <option value="">Seleccione</option>
-                    <option value="manana" {{ ($jornada ?? '') == 'manana' ? 'selected' : '' }}>Mañana (7 am - 1 pm)</option>
-                    <option value="tarde" {{ ($jornada ?? '') == 'tarde' ? 'selected' : '' }}>Tarde (1 pm - 7 pm)</option>
-                    <option value="noche" {{ ($jornada ?? '') == 'noche' ? 'selected' : '' }}>Noche (7 pm - 10 pm)</option>
+                    <option value="">Seleccione tipo de día primero</option>
+                    <option value="manana" data-dia-tipo="semana" {{ ($jornada ?? '') == 'manana' ? 'selected' : '' }}>Mañana (7 am - 1 pm)</option>
+                    <option value="tarde" data-dia-tipo="semana" {{ ($jornada ?? '') == 'tarde' ? 'selected' : '' }}>Tarde (1 pm - 7 pm)</option>
+                    <option value="noche" data-dia-tipo="semana" {{ ($jornada ?? '') == 'noche' ? 'selected' : '' }}>Noche (7 pm - 10 pm)</option>
+                    <option value="fin_semana" data-dia-tipo="fin_semana" {{ ($jornada ?? '') == 'fin_semana' ? 'selected' : '' }}>Todo el día (7 am - 5 pm)</option>
                 </select>
             </div>
             <button type="submit" 
@@ -61,8 +63,8 @@
                 Ambientes disponibles
                 @if($dia_tipo && $jornada)
                     <span class="text-base font-normal text-gray-600">
-                        — {{ $dia_tipo === 'sabado_domingo' ? 'Sábados y Domingos' : 'Lunes a Viernes' }},
-                        {{ $jornada === 'manana' ? 'Mañana' : ($jornada === 'tarde' ? 'Tarde' : 'Noche') }}
+                        — {{ $dia_tipo === 'lunes_viernes' ? 'Lunes a Viernes' : ($dia_tipo === 'sabado' ? 'Sábados' : 'Domingos') }},
+                        {{ $jornada === 'fin_semana' ? 'Todo el día (7 am - 5 pm)' : ($jornada === 'manana' ? 'Mañana' : ($jornada === 'tarde' ? 'Tarde' : 'Noche')) }}
                     </span>
                 @endif
             </h2>
@@ -112,4 +114,37 @@
             </div>
         @endif
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var diaTipo = document.getElementById('dia_tipo');
+            var jornadaSelect = document.getElementById('jornada');
+            if (!diaTipo || !jornadaSelect) return;
+
+            function actualizarOpcionesJornada() {
+                var valor = diaTipo.value;
+                var opciones = jornadaSelect.querySelectorAll('option[data-dia-tipo]');
+                var esFinDeSemana = (valor === 'sabado' || valor === 'domingo');
+
+                opciones.forEach(function(opt) {
+                    var mostrar = (opt.getAttribute('data-dia-tipo') === 'fin_semana') ? esFinDeSemana : !esFinDeSemana;
+                    opt.style.display = mostrar ? '' : 'none';
+                    opt.disabled = !mostrar;
+                });
+
+                if (valor === '') {
+                    jornadaSelect.value = '';
+                } else if (esFinDeSemana) {
+                    jornadaSelect.value = 'fin_semana';
+                } else if (valor === 'lunes_viernes') {
+                    if (jornadaSelect.value === 'fin_semana' || !jornadaSelect.value) {
+                        jornadaSelect.value = 'manana';
+                    }
+                }
+            }
+
+            diaTipo.addEventListener('change', actualizarOpcionesJornada);
+            actualizarOpcionesJornada();
+        });
+    </script>
 @endsection

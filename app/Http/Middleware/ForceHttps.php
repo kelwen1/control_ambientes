@@ -15,8 +15,16 @@ class ForceHttps
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Solo forzar HTTPS en producción
-        if (config('app.env') === 'production' && !$request->secure()) {
+        // No forzar HTTPS en local ni cuando se accede por localhost/127.0.0.1
+        $host = $request->getHost();
+        $isLocal = in_array($host, ['localhost', '127.0.0.1'], true)
+            || str_starts_with($host, '127.');
+
+        if ($isLocal || config('app.env') !== 'production') {
+            return $next($request);
+        }
+
+        if (!$request->secure()) {
             return redirect()->secure($request->getRequestUri());
         }
 

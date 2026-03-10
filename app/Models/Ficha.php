@@ -56,11 +56,19 @@ class Ficha extends Model
     ];
 
     /**
-     * Get the programa that owns the ficha.
+     * Programa de formación al que pertenece la ficha.
      */
     public function programa()
     {
         return $this->belongsTo(Programa::class, 'id_programa', 'id_programa');
+    }
+
+    /**
+     * Avance actual de la ficha (competencia, resultado, sección) si existe.
+     */
+    public function avanceActual()
+    {
+        return $this->hasOne(AvanceFicha::class, 'id_ficha', 'id_ficha')->latestOfMany();
     }
 }
 

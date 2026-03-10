@@ -1,6 +1,6 @@
 # Sistema de Control de Ambientes - SENA
 
-Sistema web desarrollado en Laravel para la gestión y control de ambientes de aprendizaje, fichas de formación, reservas de espacios y inventario de equipos del SENA.
+Sistema web desarrollado en Laravel para la gestión y control de ambientes de aprendizaje, fichas de formación y reservas de espacios del SENA.
 
 ## 📋 Tabla de Contenidos
 
@@ -30,7 +30,6 @@ Sistema de gestión integral diseñado para el control y administración de ambi
 
 - Gestionar fichas de formación con sus programas asociados
 - Controlar la asignación de ambientes a fichas mediante reservas
-- Mantener un inventario actualizado de equipos por ambiente
 - Administrar usuarios con diferentes roles (Administrador y Usuario)
 - Proporcionar un dashboard con estadísticas en tiempo real
 - Exportar datos en formato CSV para análisis externos
@@ -65,18 +64,12 @@ Sistema de gestión integral diseñado para el control y administración de ambi
    - Búsqueda por número de ambiente
    - Exportación a CSV
 
-4. **Gestión de Inventario**
-   - Registrar inventario por ambiente
-   - Gestionar equipos: computadores, sillas, mesas, aire acondicionado, tablero, televisor, ventiladores, videobeam y herramientas
-   - Editar y eliminar registros de inventario
-   - Búsqueda avanzada
-
-5. **Gestión de Usuarios** (Solo Administradores)
+4. **Gestión de Usuarios** (Solo Administradores)
    - Crear, editar y eliminar usuarios
    - Asignar roles (Administrador/Usuario)
    - Búsqueda por nombre, apellido, correo o usuario
 
-6. **Ajustes de Perfil**
+5. **Ajustes de Perfil**
    - Actualizar información personal (nombre, apellido, correo, teléfono)
    - Cambiar nombre de usuario
    - Cambiar contraseña
@@ -292,7 +285,6 @@ control_ambientes/
 │   │   │   ├── AuthController.php
 │   │   │   ├── DashboardController.php
 │   │   │   ├── FichasController.php
-│   │   │   ├── InventarioController.php
 │   │   │   ├── ReservasController.php
 │   │   │   ├── UsersController.php
 │   │   │   └── AjustesController.php
@@ -306,7 +298,6 @@ control_ambientes/
 │   └── Models/
 │       ├── Ambiente.php
 │       ├── Ficha.php
-│       ├── Inventario.php
 │       ├── Programa.php
 │       ├── Reserva.php
 │       └── User.php
@@ -339,7 +330,6 @@ control_ambientes/
 │       ├── components/
 │       ├── dashboard.blade.php
 │       ├── fichas/
-│       ├── inventario/
 │       ├── layouts/
 │       ├── reservas/
 │       ├── users/
@@ -417,7 +407,7 @@ Reservas de ambientes para fichas.
 | id_reserva | INTEGER | ID único (PK) |
 | id_ambiente | INTEGER | ID del ambiente (FK) |
 | id_ficha | INTEGER | ID de la ficha (FK) |
-| dia_semana | VARCHAR | Día: "lunes" o "sabado" |
+| dia_semana | VARCHAR | Día: "lunes" (L-V), "sabado", "domingo" (fin de semana 7am-5pm) |
 | hora_inicio | TIME | Hora de inicio |
 | hora_fin | TIME | Hora de fin |
 | fecha_inicio | DATE | Fecha de inicio del período |
@@ -427,22 +417,6 @@ Reservas de ambientes para fichas.
 | created_at | TIMESTAMP | Fecha de creación |
 | updated_at | TIMESTAMP | Fecha de actualización |
 
-#### Tabla: `inventario`
-Inventario de equipos por ambiente.
-
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| id_Inventario | INTEGER | ID único (PK) |
-| id_ambiente | INTEGER | ID del ambiente (FK) |
-| computadores | INTEGER | Cantidad de computadores |
-| sillas | INTEGER | Cantidad de sillas |
-| mesas | INTEGER | Cantidad de mesas |
-| aire_acondicionado | INTEGER | Cantidad (0 o 1) |
-| tablero | INTEGER | Cantidad (0 o 1) |
-| televisor | INTEGER | Cantidad (0 o 1) |
-| ventiladores | INTEGER | Cantidad |
-| vidiovid | INTEGER | Cantidad (videobeam) |
-| herramientas | INTEGER | Cantidad |
 
 #### Tabla: `estado_reserva`
 Estados de reserva (catálogo).
@@ -457,7 +431,7 @@ Estados de reserva (catálogo).
 - `Ficha` pertenece a `Programa` (belongsTo)
 - `Reserva` pertenece a `Ambiente` (belongsTo)
 - `Reserva` pertenece a `Ficha` (belongsTo)
-- `Inventario` pertenece a `Ambiente` (relación implícita)
+{{-- Relación de inventario eliminada: el módulo ya no existe --}}
 
 ---
 

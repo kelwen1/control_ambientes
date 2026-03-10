@@ -2,123 +2,155 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * Indicates if the model should be timestamped.
-     *
-     * @var bool
-     */
-    public $timestamps = false;
+    protected $primaryKey = 'id_usuario';
 
     /**
-     * The primary key for the model.
-     *
-     * @var string
-     */
-    protected $primaryKey = 'id_cedula';
-
-    /**
-     * The "type" of the primary key ID.
-     *
-     * @var string
-     */
-    protected $keyType = 'string';
-
-    /**
-     * Indicates if the IDs are auto-incrementing.
-     *
-     * @var bool
-     */
-    public $incrementing = false;
-
-    /**
-     * The column name for authentication username.
-     */
-    protected $username = 'user';
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
+     * Columna real en BD: 'password' (producción) o 'contraseña' (migraciones nuevas).
+     * Se detecta automáticamente si la tabla tiene 'password'.
      */
     protected $fillable = [
-        'id_cedula',
-        'nombre',
-        'apellido',
-        'correo',
-        'telefono',
+        'id_persona',
         'user',
         'password',
-        'id_rol',
+        'created_by',
+        'updated_by',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'id_cedula' => 'string',
+            'id_persona' => 'integer',
         ];
     }
 
+    protected $username = 'user';
+
+    public function getAuthPassword()
+    {
+        return $this->password;
+    }
+
     /**
-     * Get the user's full name.
+     * Alias para código que usa $user->contraseña (AjustesController, etc.)
+     */
+    public function getContraseñaAttribute()
+    {
+        return $this->attributes['password'] ?? $this->attributes['contraseña'] ?? null;
+    }
+
+    public function setContraseñaAttribute($value)
+    {
+        $this->attributes['password'] = $value;
+    }
+
+    /**
+     * Persona asociada (datos personales).
+     */
+    public function persona(): BelongsTo
+    {
+        return $this->belongsTo(Persona::class, 'id_persona');
+    }
+
+    /**
+     * Persona que creó esta cuenta de usuario (users.created_by → persona.id_persona).
+     */
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(Persona::class, 'created_by', 'id_persona');
+    }
+
+    /**
+     * Rol vía persona (id_rol está en persona).
+     */
+    public function getRolAttribute(): ?Rol
+    {
+        return $this->persona?->rol;
+    }
+
+    /**
+     * id_rol para compatibilidad (delega a persona).
+     */
+    public function getIdRolAttribute(): ?int
+    {
+        return $this->persona?->id_rol;
+    }
+
+    /**
+     * Nombre completo (nombres + apellidos de persona).
      */
     public function getNameAttribute(): string
     {
-        return "{$this->nombre} {$this->apellido}";
+        return $this->persona
+            ? trim("{$this->persona->nombres} {$this->persona->apellidos}")
+            : '';
+    }
+
+    public function getNombreAttribute(): ?string
+    {
+        return $this->persona?->nombres;
+    }
+
+    public function getApellidoAttribute(): ?string
+    {
+        return $this->persona?->apellidos;
+    }
+
+    public function getCorreoAttribute(): ?string
+    {
+        return $this->persona?->correo;
+    }
+
+    public function getTelefonoAttribute(): ?string
+    {
+        return $this->persona?->telefono;
     }
 
     /**
-     * Check if the user is an administrator.
-     *
-     * @return bool
+     * Cédula para compatibilidad con auditoría y ajustes.
      */
+    public function getIdCedulaAttribute(): ?string
+    {
+        // En el modelo de datos, id_persona almacena la cédula
+        return $this->persona?->id_persona;
+    }
+
+    /** Roles: administrador (1), coordinacion_L (2), coordinacion (3), instructor (4). */
     public function isAdmin(): bool
     {
-        return $this->id_rol === 1;
+        return (int) ($this->persona?->id_rol ?? 0) === config('roles.ids.administrador', 1);
     }
 
-    /**
-     * Check if the user is a coordinator.
-     *
-     * @return bool
-     */
+    /** Coordinación mayor (coordinacion_L) y coordinación. */
     public function isCoordinator(): bool
     {
-        return $this->id_rol === 2;
+        $id = (int) ($this->persona?->id_rol ?? 0);
+        return $id === config('roles.ids.coordinacion_L', 2)
+            || $id === config('roles.ids.coordinacion', 3);
     }
 
-    /**
-     * Check if the user is a regular user.
-     *
-     * @return bool
-     */
+    /** Instructor. */
+    public function isInstructor(): bool
+    {
+        return (int) ($this->persona?->id_rol ?? 0) === config('roles.ids.instructor', 4);
+    }
+
+    /** Alias de isInstructor() para compatibilidad. */
     public function isUser(): bool
     {
-        return $this->id_rol === 3;
+        return $this->isInstructor();
     }
 }

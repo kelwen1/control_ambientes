@@ -36,7 +36,7 @@
         <div class="p-6 sm:p-8 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h2 class="text-xl sm:text-2xl font-bold text-gray-800 flex items-center gap-2">
                 <span class="text-2xl">🏛️</span>
-                Registros de Ambientes
+                Registros de Reservas
             </h2>
             
             <div class="flex gap-3 w-full sm:w-auto">
@@ -122,6 +122,8 @@
                                         Lunes a Viernes
                                     @elseif($reserva->dia_semana == 'sabado')
                                         Sábados
+                                    @elseif($reserva->dia_semana == 'domingo')
+                                        Domingos
                                     @else
                                         {{ ucfirst($reserva->dia_semana ?? 'N/A') }}
                                     @endif
@@ -216,7 +218,7 @@
                             class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold text-base hover:bg-gray-400 transition-colors shadow-lg">
                         Cancelar
                     </button>
-                    <form id="deleteForm" method="POST" class="flex-1" data-base-url="{{ url('/reservas') }}">
+                    <form id="deleteForm" method="POST" class="flex-1" data-base-url="{{ str_replace('/0', '', route('reservas.destroy', ['id' => 0])) }}">
                         @csrf
                         @method('DELETE')
                         <button type="submit" 

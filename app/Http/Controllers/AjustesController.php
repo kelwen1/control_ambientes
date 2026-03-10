@@ -44,12 +44,12 @@ class AjustesController extends Controller
         $user = Auth::user();
 
         // Verificar contraseña
-        if (!Hash::check($request->contraseña_actual, $user->password)) {
+        if (!Hash::check($request->contraseña_actual, $user->contraseña)) {
             return back()->withErrors(['contraseña_actual' => 'La contraseña actual es incorrecta.'])->withInput();
         }
 
-        $user->nombre = $request->nombre;
-        $user->save();
+        $user->persona->nombres = $request->nombre;
+        $user->persona->save();
 
         return redirect()->route('ajustes.index')->with('success', 'Nombre actualizado correctamente.');
     }
@@ -76,12 +76,12 @@ class AjustesController extends Controller
         $user = Auth::user();
 
         // Verificar contraseña
-        if (!Hash::check($request->contraseña_actual, $user->password)) {
+        if (!Hash::check($request->contraseña_actual, $user->contraseña)) {
             return back()->withErrors(['contraseña_actual' => 'La contraseña actual es incorrecta.'])->withInput();
         }
 
-        $user->apellido = $request->apellido;
-        $user->save();
+        $user->persona->apellidos = $request->apellido;
+        $user->persona->save();
 
         return redirect()->route('ajustes.index')->with('success', 'Apellido actualizado correctamente.');
     }
@@ -98,7 +98,7 @@ class AjustesController extends Controller
                 'required',
                 'email',
                 'max:100',
-                'unique:users,correo,' . $user->id_cedula . ',id_cedula',
+                'unique:persona,correo,' . $user->persona->id_persona . ',id_persona',
                 'regex:/^[^\s]+@(gmail|hotmail)\.com$/i',
             ],
             'contraseña_actual' => 'required|string',
@@ -111,12 +111,12 @@ class AjustesController extends Controller
         ]);
 
         // Verificar contraseña
-        if (!Hash::check($request->contraseña_actual, $user->password)) {
+        if (!Hash::check($request->contraseña_actual, $user->contraseña)) {
             return back()->withErrors(['contraseña_actual' => 'La contraseña actual es incorrecta.'])->withInput();
         }
 
-        $user->correo = $request->correo;
-        $user->save();
+        $user->persona->correo = $request->correo;
+        $user->persona->save();
 
         return redirect()->route('ajustes.index')->with('success', 'Correo electrónico actualizado correctamente.');
     }
@@ -142,12 +142,12 @@ class AjustesController extends Controller
         $user = Auth::user();
 
         // Verificar contraseña
-        if (!Hash::check($request->contraseña_actual, $user->password)) {
+        if (!Hash::check($request->contraseña_actual, $user->contraseña)) {
             return back()->withErrors(['contraseña_actual' => 'La contraseña actual es incorrecta.'])->withInput();
         }
 
-        $user->telefono = $request->telefono ?? null;
-        $user->save();
+        $user->persona->telefono = $request->telefono ?? null;
+        $user->persona->save();
 
         return redirect()->route('ajustes.index')->with('success', 'Teléfono actualizado correctamente.');
     }
@@ -164,7 +164,7 @@ class AjustesController extends Controller
                 'required',
                 'string',
                 'max:15',
-                'unique:users,user,' . $user->id_cedula . ',id_cedula',
+                'unique:users,user,' . $user->id_usuario . ',id_usuario',
                 'regex:/^[a-zA-Z0-9]+$/',
             ],
             'contraseña_actual' => 'required|string',
@@ -176,7 +176,7 @@ class AjustesController extends Controller
         ]);
 
         // Verificar contraseña
-        if (!Hash::check($request->contraseña_actual, $user->password)) {
+        if (!Hash::check($request->contraseña_actual, $user->contraseña)) {
             return back()->withErrors(['contraseña_actual' => 'La contraseña actual es incorrecta.'])->withInput();
         }
 
@@ -209,12 +209,12 @@ class AjustesController extends Controller
         $user = Auth::user();
 
         // Verificar contraseña actual
-        if (!Hash::check($request->contraseña_actual, $user->password)) {
+        if (!Hash::check($request->contraseña_actual, $user->contraseña)) {
             return back()->withErrors(['contraseña_actual' => 'La contraseña actual es incorrecta.'])->withInput();
         }
 
         // Actualizar contraseña
-        $user->password = Hash::make($request->contraseña_nueva);
+        $user->contraseña = Hash::make($request->contraseña_nueva);
         $user->save();
 
         return redirect()->route('ajustes.index')->with('success', 'Contraseña actualizada correctamente.');

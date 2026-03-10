@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Persona;
+use App\Models\Rol;
 use App\Models\SecurityAuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -64,18 +65,18 @@ class AuthController extends Controller
 
         $request->validate([
             'user' => 'required|string|max:255',
-            'password' => 'required|string|max:255',
+            'contraseña' => 'required|string|max:255',
         ]);
 
         // Sanitizar inputs
         $username = trim($request->input('user'));
-        $password = $request->input('password');
+        $password = $request->input('contraseña');
 
         // Buscar usuario
         $user = User::where('user', $username)->first();
 
         // Mensaje genérico para no revelar si el usuario existe
-        if (!$user || !Hash::check($password, $user->password)) {
+        if (!$user || !Hash::check($password, $user->contraseña)) {
             // Incrementar contador de intentos fallidos
             $newAttempts = $loginAttempts + 1;
             $request->session()->put('login_attempts', $newAttempts);
@@ -123,7 +124,7 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended('/dashboard');
+        return redirect()->intended(route('dashboard'));
     }
 
     /**
@@ -131,54 +132,56 @@ class AuthController extends Controller
      */
     public function showRegisterForm()
     {
-        return view('auth.register');
+        $roles = Rol::orderBy('id_rol')->get();
+        return view('auth.register', ['roles' => $roles]);
     }
 
     /**
      * Handle registration request.
+     * Crea persona y user: user/contraseña = cedula (primer usuario: created_by/updated_by null).
      */
     public function register(Request $request)
     {
         $validated = $request->validate([
-            'id_cedula' => 'required|string|unique:users,id_cedula',
-            'nombre' => 'required|string|max:255',
-            'apellido' => 'required|string|max:255',
-            'correo' => 'required|email|unique:users,correo',
-            'telefono' => 'nullable|string|max:20',
-            'user' => 'required|string|unique:users,user|max:255',
-            'password' => 'required|string|min:8|confirmed',
-            'id_rol' => 'required|integer|in:1,2,3',
+            // La cédula se almacena en la columna id_persona de la tabla persona
+            'cedula' => 'required|string|max:20|unique:persona,id_persona',
+            'nombres' => 'required|string|max:50',
+            'apellidos' => 'required|string|max:50',
+            'correo' => 'required|email|max:50|unique:persona,correo',
+            'telefono' => 'nullable|string|max:10',
+            'id_rol' => 'required|integer|exists:rol,id_rol',
         ], [
-            'id_cedula.required' => 'El número de cédula es obligatorio.',
-            'id_cedula.unique' => 'Esta cédula ya está registrada en el sistema.',
-            'nombre.required' => 'El nombre es obligatorio.',
-            'apellido.required' => 'El apellido es obligatorio.',
-            'correo.required' => 'El correo electrónico es obligatorio.',
-            'correo.email' => 'Debe ingresar un correo electrónico válido.',
-            'correo.unique' => 'Este correo electrónico ya está registrado.',
-            'user.required' => 'El nombre de usuario es obligatorio.',
-            'user.unique' => 'Este nombre de usuario ya está en uso. Por favor elige otro.',
-            'password.required' => 'La contraseña es obligatoria.',
-            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
-            'password.confirmed' => 'Las contraseñas no coinciden.',
+            'cedula.required' => 'La cédula es obligatoria.',
+            'cedula.unique' => 'Esta cédula ya está registrada.',
+            'nombres.required' => 'Los nombres son obligatorios.',
+            'apellidos.required' => 'Los apellidos son obligatorios.',
+            'correo.required' => 'El correo es obligatorio.',
+            'correo.email' => 'Correo electrónico válido.',
+            'correo.unique' => 'Este correo ya está registrado.',
             'id_rol.required' => 'Debe seleccionar un rol.',
-            'id_rol.in' => 'El rol seleccionado no es válido.',
+            'id_rol.exists' => 'El rol seleccionado no es válido.',
+        ]);
+
+        $cedula = trim($validated['cedula']);
+
+        $persona = Persona::create([
+            'id_persona' => $cedula,
+            'nombres' => $validated['nombres'],
+            'apellidos' => $validated['apellidos'],
+            'correo' => $validated['correo'],
+            'telefono' => $validated['telefono'] ?? null,
+            'id_rol' => $validated['id_rol'],
         ]);
 
         $user = User::create([
-            'id_cedula' => $validated['id_cedula'],
-            'nombre' => $validated['nombre'],
-            'apellido' => $validated['apellido'],
-            'correo' => $validated['correo'],
-            'telefono' => $validated['telefono'] ?? null,
-            'user' => $validated['user'],
-            'password' => Hash::make($validated['password']),
-            'id_rol' => $validated['id_rol'],
+            'id_persona' => $persona->id_persona,
+            'user' => $cedula,
+            'password' => $cedula, // El cast 'hashed' del modelo hashea automáticamente
         ]);
 
         Auth::login($user);
 
-        return redirect()->route('login');
+        return redirect()->route('dashboard');
     }
 
     /**

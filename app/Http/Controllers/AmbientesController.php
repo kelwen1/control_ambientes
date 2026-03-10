@@ -10,18 +10,21 @@ class AmbientesController extends Controller
     /**
      * Rangos de hora por jornada (mañana, tarde, noche). Sin solapamiento para permitir
      * hasta 3 reservas el mismo día: mañana 7-13, tarde 13-19, noche 19-22.
+     * Sábados y domingos: una sola jornada 7-17 (una reserva por ambiente por día).
      * Se usan con segundos (HH:MM:SS) para comparación correcta con TIME en MySQL.
      */
     private const JORNADAS = [
         'manana' => ['inicio' => '07:00:00', 'fin' => '13:00:00'],
         'tarde'  => ['inicio' => '13:00:00', 'fin' => '19:00:00'],
         'noche'  => ['inicio' => '19:00:00', 'fin' => '22:00:00'],
+        'fin_semana' => ['inicio' => '07:00:00', 'fin' => '17:00:00'],
     ];
 
     /**
      * Disponibilidad por jornada: ambientes libres en un tipo de día y jornada.
-     * Solo se consideran reservas ACTIVAS; el día debe coincidir exactamente (lunes vs sábado).
-     * GET /ambientes/disponibilidad?dia_tipo=lunes_viernes|sabado_domingo&jornada=manana|tarde|noche
+     * Solo se consideran reservas ACTIVAS.
+     * GET /ambientes/disponibilidad?dia_tipo=lunes_viernes|sabado|domingo&jornada=manana|tarde|noche|fin_semana
+     * Para sábado/domingo solo se usa jornada fin_semana (7-17).
      */
     public function disponibilidad(Request $request)
     {
@@ -31,20 +34,24 @@ class AmbientesController extends Controller
         $ambientesDisponibles = collect();
         $mensaje = null;
 
+        // Sábado y domingo solo admiten jornada fin_semana
+        $esFinDeSemana = in_array($diaTipo, ['sabado', 'domingo'], true);
+        if ($esFinDeSemana) {
+            $jornada = 'fin_semana';
+        }
+
         if ($diaTipo && $jornada && isset(self::JORNADAS[$jornada])) {
-            $diaSemana = $diaTipo === 'sabado_domingo' ? 'sabado' : 'lunes';
+            $diaSemana = in_array($diaTipo, ['sabado', 'domingo'], true) ? $diaTipo : 'lunes';
             $rango = self::JORNADAS[$jornada];
             $inicioJornada = $rango['inicio'];
             $finJornada = $rango['fin'];
 
-            // Ambientes con alguna reserva ACTIVA (estado 1) en ESE día y con horario que solapa la jornada.
-            // dia_semana normalizado (trim + minúsculas) para evitar "Lunes"/"lunes" o espacios.
-            // Solapamiento: [hora_inicio, hora_fin] con [inicioJornada, finJornada] ↔ hora_inicio < finJornada AND hora_fin > inicioJornada
+            // Ambientes con alguna reserva ACTIVA en ese día con horario que solapa la jornada.
+            // Solapamiento: [hora_inicio, hora_fin] con [inicioJornada, finJornada]
             $ocupados = DB::table('reservas')
                 ->where('reservas.id_estado_reserva', 1)
                 ->whereRaw('LOWER(TRIM(reservas.dia_semana)) = ?', [strtolower($diaSemana)])
-                ->whereTime('reservas.hora_inicio', '=', $inicioJornada)
-                ->whereTime('reservas.hora_fin', '=', $finJornada)
+                ->whereRaw('reservas.hora_inicio < ? AND reservas.hora_fin > ?', [$finJornada, $inicioJornada])
                 ->pluck('reservas.id_ambiente')
                 ->unique()
                 ->values();

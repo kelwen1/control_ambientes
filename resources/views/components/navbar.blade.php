@@ -27,18 +27,19 @@
                     <span class="hidden sm:inline">🏛️</span>
                     <span class="sm:ml-0.5">Ambientes</span>
                 </a>
-                
-                <a href="{{ route('inventario.index') }}" 
-                   class="px-2.5 sm:px-3.5 py-2 text-[11px] sm:text-[13px] font-medium rounded-md transition-colors {{ request()->routeIs('inventario.*') ? 'bg-[#39B54A] text-white' : 'text-gray-700 hover:bg-gray-100' }}">
-                    <span class="hidden sm:inline">📦</span>
-                    <span class="sm:ml-0.5">Inventario</span>
-                </a>
-                
                 <a href="{{ route('ajustes.index') }}" 
                    class="px-2.5 sm:px-3.5 py-2 text-[11px] sm:text-[13px] font-medium rounded-md transition-colors {{ request()->routeIs('ajustes.*') ? 'bg-[#39B54A] text-white' : 'text-gray-700 hover:bg-gray-100' }}">
                     <span class="hidden sm:inline">⚙️</span>
                     <span class="sm:ml-0.5">Ajustes</span>
                 </a>
+
+                @if(auth()->user()->isInstructor())
+                <a href="{{ route('instructor.tablero') }}" 
+                   class="px-2.5 sm:px-3.5 py-2 text-[11px] sm:text-[13px] font-medium rounded-md transition-colors {{ request()->routeIs('instructor.*') ? 'bg-[#39B54A] text-white' : 'text-gray-700 hover:bg-gray-100' }}">
+                    <span class="hidden sm:inline">📅</span>
+                    <span class="sm:ml-0.5">Mi jornada</span>
+                </a>
+                @endif
                 
                 @if(auth()->user()->isAdmin())
                     <a href="{{ route('users.index') }}" 

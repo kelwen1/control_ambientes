@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Gestión de Ambientes') - SENA</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('images/logos/logo_sena.png') }}">
@@ -385,6 +386,44 @@
         </div>
     </div>
 
+    <script>
+    (function() {
+        var tabId = sessionStorage.getItem('_tabId');
+        if (!tabId) {
+            tabId = 't_' + Math.random().toString(36).slice(2) + Date.now();
+            sessionStorage.setItem('_tabId', tabId);
+        }
+        var registerUrl = '{{ route("tab.register") }}';
+        var unregisterUrl = '{{ route("tab.unregister") }}';
+        var token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+        fetch(registerUrl, {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': token, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({ tab_id: tabId })
+        }).catch(function() {});
+
+        sessionStorage.removeItem('_tabNav');
+
+        document.addEventListener('click', function(e) {
+            var a = e.target.closest('a');
+            if (a && a.href && a.origin === location.origin && a.pathname.startsWith('/')) {
+                sessionStorage.setItem('_tabNav', '1');
+            }
+        }, true);
+        document.addEventListener('submit', function() {
+            sessionStorage.setItem('_tabNav', '1');
+        }, true);
+
+        window.addEventListener('pagehide', function() {
+            if (sessionStorage.getItem('_tabNav')) return;
+            var fd = new FormData();
+            fd.append('_token', token);
+            fd.append('tab_id', tabId);
+            navigator.sendBeacon(unregisterUrl, fd);
+        });
+    })();
+    </script>
 </body>
 </html>
 

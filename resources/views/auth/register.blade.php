@@ -8,19 +8,8 @@
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('images/logos/logo_sena.png') }}">
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'sena-green': '#39B54A',
-                    }
-                }
-            }
-        }
-    </script>
+    <link rel="stylesheet" href="{{ asset('css/app-premium.css') }}">
+    @vite(['resources/css/app.css'])
     <style>
         .carousel-container {
             position: relative;

@@ -39,7 +39,7 @@ class Programa extends Model
      *
      * @var bool
      */
-    public $timestamps = false;
+    public $timestamps = true;
 
     /**
      * The attributes that are mass assignable.
@@ -48,6 +48,8 @@ class Programa extends Model
      */
     protected $fillable = [
         'nombre_programa',
+        'id_duracion',
+        'id_nivel_programa',
     ];
 
     /**
@@ -58,4 +60,3 @@ class Programa extends Model
         return $this->hasMany(Competencia::class, 'id_programa');
     }
 }
-

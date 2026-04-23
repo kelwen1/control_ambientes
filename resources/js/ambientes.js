@@ -4,25 +4,47 @@
 import { openDeleteModal, closeDeleteModal } from './modals';
 import { initSearchInput } from './search';
 
-// Función específica para ambientes (eliminación de reservas)
-window.openDeleteModal = function(id) {
-    const modal = document.getElementById('deleteModal');
-    const form = document.getElementById('deleteForm');
+// Listado de programación: eliminar una o varias reservas (misma asignación visual)
+window.openDeleteModal = function(ids) {
+    const list = Array.isArray(ids) ? ids : [ids];
+    const parsed = list.map((x) => parseInt(x, 10)).filter((n) => n > 0);
+    if (!parsed.length) return;
 
-    if (form) {
-        // Usar la URL base generada por Laravel (soporta subcarpetas)
-        const baseUrl = form.dataset.baseUrl || (window.location.origin + '/s/asignacion');
-        form.action = `${baseUrl}/${id}`;
+    const container = document.getElementById('deleteIdsContainer');
+    const form = document.getElementById('deleteForm');
+    const modal = document.getElementById('deleteModal');
+    const msg = document.getElementById('deleteModalMensaje');
+
+    if (container) {
+        container.innerHTML = '';
+        parsed.forEach((id) => {
+            const inp = document.createElement('input');
+            inp.type = 'hidden';
+            inp.name = 'ids[]';
+            inp.value = String(id);
+            container.appendChild(inp);
+        });
+    }
+    if (msg) {
+        msg.textContent = parsed.length > 1
+            ? `Se eliminarán ${parsed.length} fechas de esta asignación (una por cada registro en base de datos). Esta acción no se puede deshacer.`
+            : '¿Estás seguro de que deseas eliminar esta reserva? Esta acción no se puede deshacer.';
     }
 
     if (modal) {
         modal.classList.remove('hidden');
         modal.classList.add('flex');
+        modal.style.display = 'flex';
     }
 };
 
 window.closeDeleteModal = function() {
-    closeDeleteModal('deleteModal');
+    const modal = document.getElementById('deleteModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        modal.style.display = '';
+    }
 };
 
 // Búsqueda solo numérica para ambientes
@@ -86,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Cerrar modal al hacer clic fuera
     document.getElementById('deleteModal')?.addEventListener('click', function(e) {
         if (e.target === this) {
-            closeDeleteModal();
+            window.closeDeleteModal();
         }
     });
 });

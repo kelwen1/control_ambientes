@@ -9,27 +9,32 @@ use Symfony\Component\HttpFoundation\Response;
 class CoordinatorViewOnlyMiddleware
 {
     /**
-     * El coordinador solo tiene permisos de visualización y búsqueda.
-     * No puede crear, editar, eliminar ni exportar en Fichas, Ambientes/Reservas ni Inventario.
+     * Coordinador normal (id_rol=3): consulta, reportes Excel y puede crear reservas (asignación).
+     * No crea/edita/elimina fichas ni edita/elimina reservas; catálogos solo lectura (listados).
+     * La administración de usuarios es solo administrador (superusuario).
+     * Coordinacion_L (id_rol=2) sí puede crear/editar/eliminar en lo permitido por rutas.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return redirect()->route('login');
         }
 
         $user = auth()->user();
 
-        // Restricción para coordinacion_L (2) y coordinacion (3): solo ver, no crear/editar/eliminar
-        if (!$user->isCoordinator()) {
+        // Solo restringir a coordinacion (3). Coordinacion_L (2) puede crear/editar/eliminar
+        if (! $user->isCoordinatorOnly()) {
             return $next($request);
         }
 
-        // El coordinador intentó acceder a una ruta de escritura/exportación
+        if ($request->routeIs('reservas.create', 'reservas.store')) {
+            return $next($request);
+        }
+
         return redirect()
             ->route('dashboard')
-            ->with('error', 'No tienes permisos para realizar esta acción. Solo puedes visualizar y buscar.');
+            ->with('error', 'No tienes permisos para realizar esta acción.');
     }
 }

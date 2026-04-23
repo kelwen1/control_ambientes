@@ -50,14 +50,30 @@ class Reserva extends Model
         'id_ambiente',
         'id_ficha',
         'id_persona',
-        'dia_semana',
-        'hora_inicio',
-        'hora_fin',
+        'id_jornada',
+        'id_competencia',
+        'id_resultado',
+        'id_dia_semana',
         'fecha_inicio',
         'fecha_fin',
         'id_estado_reserva',
-        'observaciones',
     ];
+
+    /**
+     * La jornada vive en la ficha; se expone aquí para vistas y lógica que usan $reserva->id_jornada.
+     */
+    public function getIdJornadaAttribute(): ?int
+    {
+        if ($this->relationLoaded('ficha')) {
+            $v = $this->ficha?->id_jornada;
+
+            return $v !== null ? (int) $v : null;
+        }
+
+        $v = $this->ficha()->value('id_jornada');
+
+        return $v !== null ? (int) $v : null;
+    }
 
     /**
      * Ambiente reservado.
@@ -82,5 +98,18 @@ class Reserva extends Model
     {
         return $this->belongsTo(Persona::class, 'id_persona', 'id_persona');
     }
-}
 
+    public function competencia()
+    {
+        return $this->belongsTo(Competencia::class, 'id_competencia', 'id_competencia');
+    }
+
+    /**
+     * Días liberados: fechas específicas en las que esta reserva no ocupa el ambiente.
+     * Permite que otro instructor reserve ese slot para esa fecha.
+     */
+    public function diasLiberados()
+    {
+        return $this->hasMany(ReservaDiaLiberado::class, 'id_reserva', 'id_reserva');
+    }
+}

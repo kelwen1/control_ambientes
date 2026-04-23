@@ -5,16 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Página no encontrada - SENA</title>
     <link rel="icon" type="image/png" href="{{ asset('images/logos/logo_sena.png') }}">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: { 'sena-green': '#39B54A' }
-                }
-            }
-        }
-    </script>
+    <link rel="stylesheet" href="{{ asset('css/app-premium.css') }}">
+    @vite(['resources/css/app.css'])
 </head>
 <body class="bg-gray-50 min-h-screen flex flex-col">
     <!-- Barra superior (misma estructura que la app) -->

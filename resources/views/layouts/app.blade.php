@@ -9,19 +9,15 @@
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('images/logos/logo_sena.png') }}">
     
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'sena-green': '#39B54A',
-                    }
-                }
-            }
-        }
-    </script>
+    <!-- Google Fonts - Plus Jakarta Sans (moderna, legible) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap" rel="stylesheet">
+    
+    <!-- CSS Premium -->
+    <link rel="stylesheet" href="{{ asset('css/app-premium.css') }}">
+
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     
     <!-- JavaScript inline consolidado -->
     <script>
@@ -51,6 +47,81 @@
             if (form) {
                 form.submit();
             }
+        }
+
+        function isDesktopViewport() {
+            return window.innerWidth >= 1024;
+        }
+
+        function setSidebarDesktopState() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            if (!sidebar || !overlay) return;
+
+            sidebar.classList.remove('-translate-x-full');
+            sidebar.classList.remove('translate-x-0');
+            overlay.classList.add('hidden');
+            document.body.style.overflow = '';
+            if (sidebarToggle) sidebarToggle.setAttribute('aria-expanded', 'false');
+            if (document.activeElement === sidebarToggle) sidebarToggle.blur();
+        }
+
+        function setSidebarMobileState(isOpen) {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            if (!sidebar || !overlay) return;
+
+            if (isOpen) {
+                sidebar.classList.remove('-translate-x-full');
+                sidebar.classList.add('translate-x-0');
+                overlay.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                if (sidebarToggle) sidebarToggle.setAttribute('aria-expanded', 'true');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                sidebar.classList.remove('translate-x-0');
+                overlay.classList.add('hidden');
+                document.body.style.overflow = '';
+                if (sidebarToggle) sidebarToggle.setAttribute('aria-expanded', 'false');
+                if (document.activeElement === sidebarToggle) sidebarToggle.blur();
+            }
+        }
+
+        // Menú: sidebar fijo en desktop y desplegable en móvil
+        function toggleSidebarMobile(open) {
+            if (isDesktopViewport()) {
+                setSidebarDesktopState();
+                return;
+            }
+
+            const sidebar = document.getElementById('sidebar');
+            if (!sidebar) return;
+            const isOpen = open ?? !sidebar.classList.contains('translate-x-0');
+            setSidebarMobileState(isOpen);
+        }
+        window.toggleSidebarMobile = toggleSidebarMobile;
+
+        function syncSidebarByViewport() {
+            if (isDesktopViewport()) {
+                setSidebarDesktopState();
+            } else {
+                // Al entrar en móvil se fuerza cerrado para evitar quedar "pegado" desde desktop.
+                setSidebarMobileState(false);
+            }
+        }
+
+        function makeTablesResponsive() {
+            document.querySelectorAll('main table').forEach(function (table) {
+                if (table.dataset.mobileResponsive === '1') return;
+                const wrapper = document.createElement('div');
+                wrapper.className = 'w-full overflow-x-auto';
+                table.parentNode.insertBefore(wrapper, table);
+                wrapper.appendChild(table);
+                table.classList.add('min-w-[720px]');
+                table.dataset.mobileResponsive = '1';
+            });
         }
 
         function togglePassword(inputId, btn) {
@@ -141,6 +212,30 @@
         
         // Inicializar cuando el DOM esté listo
         document.addEventListener('DOMContentLoaded', function() {
+            // Sincroniza estado al cargar (evita heredar estados cruzados entre viewport móvil/escritorio).
+            syncSidebarByViewport();
+            makeTablesResponsive();
+
+            // Toggle menú móvil
+            document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+                toggleSidebarMobile(); // Toggle: abre si está cerrado, cierra si está abierto
+            });
+            // Cerrar menú al hacer clic en un enlace (móvil)
+            document.querySelectorAll('#sidebar a.sidebar-link').forEach(function(link) {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth < 1024) toggleSidebarMobile(false);
+                });
+            });
+
+            // Cambio de viewport: sincroniza de inmediato el sidebar y evita foco/overlay pegados.
+            let resizeSyncTimer = null;
+            window.addEventListener('resize', function() {
+                if (resizeSyncTimer) clearTimeout(resizeSyncTimer);
+                resizeSyncTimer = setTimeout(function () {
+                    syncSidebarByViewport();
+                    makeTablesResponsive();
+                }, 80);
+            });
             // Cerrar modal al hacer clic fuera
             document.addEventListener('click', function(event) {
                 const modals = document.querySelectorAll('.modal-overlay:not(.hidden)');
@@ -247,9 +342,9 @@
     </script>
     <style>
         .modal-overlay {
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
         }
         .modal-container {
             animation: modalFadeIn 0.3s ease-out;
@@ -276,9 +371,10 @@
         }
         .glass-container {
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.12);
         }
         
         /* Animaciones de transición de página */
@@ -340,21 +436,60 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        /* Sidebar fijo en escritorio; hamburguesa solo para móvil */
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen flex flex-col">
-    @include('components.navbar')
+@php
+    $globalFlash = [
+        'show' => false,
+        'type' => 'success',
+        'title' => '',
+        'lines' => [],
+    ];
+    if (isset($errors) && $errors->any()) {
+        $globalFlash['show'] = true;
+        $globalFlash['type'] = 'error';
+        $globalFlash['title'] = 'Revisa la información';
+        $globalFlash['lines'] = $errors->all();
+    } elseif (session()->has('error')) {
+        $globalFlash['show'] = true;
+        $globalFlash['type'] = 'error';
+        $globalFlash['title'] = 'No se pudo completar';
+        $globalFlash['lines'] = \Illuminate\Support\Arr::wrap(session('error'));
+    } elseif (session()->has('warning')) {
+        $globalFlash['show'] = true;
+        $globalFlash['type'] = 'warning';
+        $globalFlash['title'] = 'Aviso';
+        $globalFlash['lines'] = \Illuminate\Support\Arr::wrap(session('warning'));
+    } elseif (session()->has('success')) {
+        $globalFlash['show'] = true;
+        $globalFlash['type'] = 'success';
+        $globalFlash['title'] = 'Operación exitosa';
+        $globalFlash['lines'] = \Illuminate\Support\Arr::wrap(session('success'));
+    } elseif (session()->has('status')) {
+        $globalFlash['show'] = true;
+        $globalFlash['type'] = 'success';
+        $globalFlash['title'] = 'Listo';
+        $globalFlash['lines'] = \Illuminate\Support\Arr::wrap(session('status'));
+    }
+@endphp
+<body class="bg-gray-50 min-h-screen min-w-0 flex font-sans antialiased overflow-x-hidden"@if (!empty($globalFlash['show'])) data-global-flash="1"@endif>
+    @include('components.sidebar')
 
-    <!-- Contenido principal -->
-    <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 w-full">
-        @yield('content')
-    </main>
+    <div id="mainContent" class="flex-1 flex flex-col min-w-0 max-w-full">
+        @include('components.navbar')
 
-    @include('components.footer')
+        <!-- Contenido principal -->
+        <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 w-full min-w-0">
+            @yield('content')
+        </main>
+
+        @include('components.footer')
+    </div>
 
     <!-- Modal de Confirmación de Cierre de Sesión -->
-    <div id="logoutModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 modal-overlay">
-        <div class="modal-container glass-container rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-md">
+    <div id="logoutModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 modal-overlay modal-overlay-premium">
+        <div class="modal-container glass-container glass-premium rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-md">
             <div class="text-center">
                 <!-- Icono de Advertencia -->
                 <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-orange-100 mb-4">
@@ -374,11 +509,11 @@
                 <!-- Botones -->
                 <div class="flex gap-3 sm:gap-4">
                     <button onclick="closeLogoutModal()" 
-                            class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold text-base hover:bg-gray-400 transition-colors shadow-lg">
+                            class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-xl font-semibold text-base hover:bg-gray-400 transition-all duration-200 shadow-md">
                         Cancelar
                     </button>
                     <button onclick="confirmLogout()" 
-                            class="flex-1 bg-red-600 text-white py-3 rounded-lg font-semibold text-base hover:bg-red-700 transition-colors shadow-lg transform hover:scale-105">
+                            class="flex-1 bg-red-600 text-white py-3 rounded-xl font-semibold text-base hover:bg-red-700 hover:shadow-lg transition-all duration-200 shadow-md">
                         Cerrar Sesión
                     </button>
                 </div>
@@ -386,44 +521,9 @@
         </div>
     </div>
 
-    <script>
-    (function() {
-        var tabId = sessionStorage.getItem('_tabId');
-        if (!tabId) {
-            tabId = 't_' + Math.random().toString(36).slice(2) + Date.now();
-            sessionStorage.setItem('_tabId', tabId);
-        }
-        var registerUrl = '{{ route("tab.register") }}';
-        var unregisterUrl = '{{ route("tab.unregister") }}';
-        var token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+    @include('components.flash-modal', ['globalFlash' => $globalFlash])
+    @include('components.app-message-modal')
 
-        fetch(registerUrl, {
-            method: 'POST',
-            headers: { 'X-CSRF-TOKEN': token, 'Content-Type': 'application/json', 'Accept': 'application/json' },
-            body: JSON.stringify({ tab_id: tabId })
-        }).catch(function() {});
-
-        sessionStorage.removeItem('_tabNav');
-
-        document.addEventListener('click', function(e) {
-            var a = e.target.closest('a');
-            if (a && a.href && a.origin === location.origin && a.pathname.startsWith('/')) {
-                sessionStorage.setItem('_tabNav', '1');
-            }
-        }, true);
-        document.addEventListener('submit', function() {
-            sessionStorage.setItem('_tabNav', '1');
-        }, true);
-
-        window.addEventListener('pagehide', function() {
-            if (sessionStorage.getItem('_tabNav')) return;
-            var fd = new FormData();
-            fd.append('_token', token);
-            fd.append('tab_id', tabId);
-            navigator.sendBeacon(unregisterUrl, fd);
-        });
-    })();
-    </script>
 </body>
 </html>
 

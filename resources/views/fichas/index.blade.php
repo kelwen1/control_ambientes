@@ -4,8 +4,8 @@
 
 @section('content')
     <!-- Bienvenida -->
-    <div class="mb-6 sm:mb-8">
-        <h1 class="text-2xl sm:text-3xl font-bold text-[#39B54A] mb-2">
+    <div class="mb-6 sm:mb-8 animate-fade-slide-up">
+        <h1 class="text-2xl sm:text-3xl font-bold text-[#39B54A] mb-2 tracking-tight">
             Gestión de Fichas
         </h1>
         <p class="text-gray-600 text-sm sm:text-base">Administra y consulta las fichas de formación</p>
@@ -32,37 +32,32 @@
     @endif
 
     <!-- Tabla de fichas -->
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-        <div class="p-6 sm:p-8 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div class="card-premium bg-white rounded-xl shadow-card overflow-hidden hover:shadow-card-hover transition-shadow duration-300 max-w-full min-w-0">
+        <div class="p-4 sm:p-6 md:p-8 border-b border-gray-200 flex flex-col sm:flex-row sm:flex-wrap justify-between items-stretch sm:items-center gap-4 min-w-0">
             <h2 class="text-xl sm:text-2xl font-bold text-gray-800 flex items-center gap-2">
                 <span class="text-2xl">📋</span>
                 Registros de Fichas
             </h2>
             
-            <div class="flex gap-3 w-full sm:w-auto">
+            <div class="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-3 w-full min-w-0 sm:w-auto sm:justify-end sm:items-center">
                 <!-- Buscador (todos los roles) -->
-                <form method="GET" action="{{ route('fichas.index') }}" class="flex-1 sm:flex-initial flex gap-2" id="searchForm">
+                <form method="GET" action="{{ route('fichas.index') }}" class="flex flex-col sm:flex-row gap-2 flex-1 min-w-0 sm:min-w-[12rem] sm:max-w-xl" id="searchForm">
                     <input type="text" 
                            name="search" 
                            id="searchInput"
                            value="{{ $search }}"
-                           placeholder="Buscar por número, programa, aprendices, fechas..."
-                           class="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-[#39B54A] focus:outline-none transition-colors text-sm">
+                           placeholder="Buscar por número de ficha..."
+                           inputmode="numeric"
+                           autocomplete="off"
+                           class="w-full min-w-0 flex-1 px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-[#39B54A] focus:ring-2 focus:ring-[#39B54A]/20 focus:outline-none transition-all duration-200 text-sm">
                     <button type="submit" 
-                            class="px-4 py-2 bg-[#39B54A] text-white rounded-lg hover:bg-[#2d8f3a] transition-colors shadow-lg font-medium">
+                            class="btn-primary w-full sm:w-auto shrink-0 px-4 py-2 bg-[#39B54A] text-white rounded-xl hover:bg-[#2d8f3a] hover:shadow-glow transition-all duration-200 shadow-md font-medium">
                         🔍 Buscar
                     </button>
                 </form>
-                
-                <button type="button" 
-                        onclick="openExportModal('exportModalFichas')"
-                        class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors shadow-lg text-sm font-semibold flex items-center gap-2">
-                    <span>📥</span>
-                    <span>Reportes</span>
-                </button>
-                @unless(auth()->user()->isCoordinator())
+                @unless(auth()->user()->isCoordinatorOnly())
                 <a href="{{ route('fichas.create') }}" 
-                   class="px-4 sm:px-6 py-2 sm:py-3 bg-[#39B54A] text-white rounded-lg hover:bg-[#2d8f3a] transition-all shadow-lg transform hover:scale-105 text-sm sm:text-base font-semibold flex items-center gap-2 button-loading">
+                   class="btn-primary px-4 sm:px-6 py-2 sm:py-3 bg-[#39B54A] text-white rounded-xl hover:bg-[#2d8f3a] hover:shadow-glow transition-all duration-200 shadow-md text-sm sm:text-base font-semibold inline-flex items-center justify-center gap-2 button-loading w-full sm:w-auto">
                     <span>➕</span>
                     <span>Agregar Ficha</span>
                 </a>
@@ -81,7 +76,7 @@
                             <th class="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wider">Fecha Inicio</th>
                             <th class="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wider">Fecha Fin</th>
                             <th class="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wider">Fecha Productiva</th>
-                            @unless(auth()->user()->isCoordinator())
+                            @unless(auth()->user()->isCoordinatorOnly())
                             <th class="sticky right-0 bg-gray-50 px-4 sm:px-6 py-3 text-left text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wider z-10">Acciones</th>
                             @endunless
                         </tr>
@@ -107,7 +102,7 @@
                                 <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                     {{ $ficha->fecha_productiva ? \Carbon\Carbon::parse($ficha->fecha_productiva)->format('d/m/Y') : 'N/A' }}
                                 </td>
-                                @unless(auth()->user()->isCoordinator())
+                                @unless(auth()->user()->isCoordinatorOnly())
                                 <td class="sticky right-0 bg-white px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium z-10">
                                     <div class="flex items-center gap-2">
                                         <a href="{{ route('fichas.edit', $ficha->id_ficha) }}" 
@@ -151,7 +146,7 @@
                         Comienza agregando una nueva ficha
                     @endif
                 </p>
-                @if(!$search && !auth()->user()->isCoordinator())
+                @if(!$search && !auth()->user()->isCoordinatorOnly())
                     <a href="{{ route('fichas.create') }}" 
                        class="inline-block px-6 py-3 bg-[#39B54A] text-white rounded-lg font-semibold hover:bg-[#2d8f3a] transition-colors shadow-lg transform hover:scale-105">
                         Agregar Primera Ficha
@@ -182,7 +177,7 @@
                             class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold text-base hover:bg-gray-400 transition-colors shadow-lg">
                         Cancelar
                     </button>
-                    <form id="deleteForm" method="POST" class="flex-1" data-base-url="{{ str_replace('/0', '', route('fichas.destroy', ['id' => 0])) }}">
+                    <form id="deleteForm" method="POST" class="flex-1" data-destroy-template="{{ route('fichas.destroy', ['id' => '__ID__']) }}">
                         @csrf
                         @method('DELETE')
                         <button type="submit" 
@@ -194,11 +189,6 @@
             </div>
         </div>
     </div>
-
-    @include('components.export-modal', [
-        'modalId' => 'exportModalFichas',
-        'exportPdfUrl' => route('fichas.export', ['search' => $search]),
-    ])
 
     <style>
         .modal-overlay {
@@ -280,45 +270,21 @@
         (function() {
             // Función para abrir modal de eliminación - DEFINIR DIRECTAMENTE
             window.openDeleteModal = function(id, fichaNum) {
-                console.log('=== openDeleteModal INLINE llamado ===');
-                console.log('ID:', id, 'FichaNum:', fichaNum);
-                console.log('Tipo de ID:', typeof id);
-                
                 const modal = document.getElementById('deleteModal');
                 const form = document.getElementById('deleteForm');
                 const fichaNumElement = document.getElementById('fichaNum');
-                
-                console.log('Elementos encontrados:', {
-                    modal: !!modal,
-                    form: !!form,
-                    fichaNumElement: !!fichaNumElement
-                });
-                
+
                 if (!modal || !form) {
-                    console.error('Modal o form no encontrado');
                     return;
                 }
-                
-                // Configurar el número de ficha
+
                 if (fichaNumElement) {
                     fichaNumElement.textContent = fichaNum;
                 }
-                
-                // Configurar la acción del formulario (URL desde Laravel para no exponer ruta real)
-                const baseUrl = form.dataset.baseUrl || (window.location.origin + '/s/formacion');
-                form.action = baseUrl + '/' + id;
-                
-                // Debug: mostrar en consola para verificar
-                console.log('Form action ANTES:', form.getAttribute('action'));
-                console.log('Form action DESPUÉS:', form.action);
-                console.log('Action URL construida:', actionUrl);
-                
-                // Verificar que se configuró correctamente
-                setTimeout(function() {
-                    console.log('Form action después de 100ms:', form.action);
-                }, 100);
-                
-                // Mostrar el modal
+
+                var tpl = form.dataset.destroyTemplate || '';
+                form.action = tpl.replace('__ID__', String(id));
+
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
             };

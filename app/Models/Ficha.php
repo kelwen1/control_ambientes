@@ -50,10 +50,18 @@ class Ficha extends Model
         'num_ficha',
         'cant_aprendices',
         'id_programa',
+        'id_jornada',
         'fecha_inicio',
         'fecha_fin',
         'fecha_productiva',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'id_jornada' => 'integer',
+        ];
+    }
 
     /**
      * Programa de formación al que pertenece la ficha.
@@ -64,6 +72,14 @@ class Ficha extends Model
     }
 
     /**
+     * Jornada de formación del grupo (tabla jornada).
+     */
+    public function jornada()
+    {
+        return $this->belongsTo(Jornada::class, 'id_jornada', 'id_jornada');
+    }
+
+    /**
      * Avance actual de la ficha (competencia, resultado, sección) si existe.
      */
     public function avanceActual()
@@ -71,4 +87,3 @@ class Ficha extends Model
         return $this->hasOne(AvanceFicha::class, 'id_ficha', 'id_ficha')->latestOfMany();
     }
 }
-

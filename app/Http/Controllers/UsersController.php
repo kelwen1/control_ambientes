@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Helpers\EliminacionDependenciasHelper;
+use App\Helpers\SearchHelper;
 use App\Models\Persona;
 use App\Models\Rol;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Schema;
 use App\Models\SecurityAuditLog;
-use App\Helpers\SearchHelper;
+use App\Models\User;
+use Illuminate\Database\QueryException;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 
 class UsersController extends Controller
 {
@@ -22,19 +25,13 @@ class UsersController extends Controller
         $query = User::with(['persona.rol', 'creator']);
 
         if ($request->filled('search')) {
-            $search = SearchHelper::escapeLikeSpecialChars($request->search);
-            $query->where(function ($q) use ($search) {
-                $q->whereHas('persona', function ($p) use ($search) {
-                    $p->where('persona.nombres', 'like', '%' . $search . '%')
-                      ->orWhere('persona.apellidos', 'like', '%' . $search . '%')
-                      ->orWhereRaw("CONCAT(persona.nombres, ' ', persona.apellidos) LIKE ?", ['%' . $search . '%'])
-                      ->orWhere('persona.correo', 'like', '%' . $search . '%')
-                      ->orWhere('persona.id_persona', 'like', '%' . $search . '%');
-                })->orWhere('users.user', 'like', '%' . $search . '%');
+            $search = SearchHelper::escapeLikeSpecialChars(trim($request->search));
+            $query->whereHas('persona', function ($p) use ($search) {
+                $p->where('persona.id_persona', 'like', '%'.$search.'%');
             });
         }
 
-        $users = $query->orderBy('users.id_usuario', 'desc')->paginate(10);
+        $users = $query->orderBy('users.id_usuario', 'desc')->paginate(10)->withQueryString();
 
         return view('users.index', [
             'users' => $users,
@@ -48,6 +45,7 @@ class UsersController extends Controller
     public function create()
     {
         $roles = Rol::orderBy('id_rol')->get();
+
         return view('users.create', ['roles' => $roles]);
     }
 
@@ -56,25 +54,33 @@ class UsersController extends Controller
      */
     public function store(Request $request)
     {
+        $correoProveedorTld = '/^[\p{L}\p{N}._%+\-]+@(gmail|outlook|hotmail)\.(com|co|edu|sena)$/iu';
+
         $validated = $request->validate([
             'cedula' => [
                 'required',
                 'string',
-                'max:20',
+                'regex:/^\d{1,10}$/',
                 'unique:persona,id_persona',
             ],
-            'nombres' => ['required', 'string', 'max:50', 'regex:/^[\pL\s]+$/u'],
-            'apellidos' => ['required', 'string', 'max:50', 'regex:/^[\pL\s]+$/u'],
-            'correo' => 'required|email|max:50|unique:persona,correo',
-            'telefono' => 'nullable|string|max:10',
+            'nombres' => ['required', 'string', 'max:40', 'regex:/^[\p{L}\s]+$/u'],
+            'apellidos' => ['required', 'string', 'max:50', 'regex:/^[\p{L}\s]+$/u'],
+            'correo' => ['required', 'email', 'max:50', 'regex:'.$correoProveedorTld, 'unique:persona,correo'],
+            'telefono' => ['nullable', 'string', 'regex:/^(\d{1,10})?$/'],
             'id_rol' => 'required|integer|exists:rol,id_rol',
         ], [
             'cedula.required' => 'La cédula es obligatoria.',
+            'cedula.regex' => 'La cédula solo puede contener números (máximo 10 dígitos).',
             'cedula.unique' => 'Esta cédula ya está registrada.',
             'nombres.required' => 'Los nombres son obligatorios.',
+            'nombres.max' => 'Los nombres no pueden superar 40 caracteres.',
+            'nombres.regex' => 'Los nombres solo pueden contener letras y espacios.',
             'apellidos.required' => 'Los apellidos son obligatorios.',
+            'apellidos.regex' => 'Los apellidos solo pueden contener letras y espacios.',
             'correo.required' => 'El correo es obligatorio.',
+            'correo.regex' => 'Use un correo @gmail, @outlook o @hotmail con terminación .com, .co, .edu o .sena.',
             'correo.unique' => 'Este correo ya está registrado.',
+            'telefono.regex' => 'El teléfono solo puede contener números (máximo 10 dígitos).',
             'id_rol.required' => 'Debe seleccionar un rol.',
             'id_rol.exists' => 'El rol no es válido.',
         ]);
@@ -105,16 +111,16 @@ class UsersController extends Controller
 
         try {
             SecurityAuditLog::create([
-                'user_id'       => (string) Auth::user()?->id_cedula,
-                'action'        => 'user_created',
+                'user_id' => (string) Auth::user()?->id_cedula,
+                'action' => 'user_created',
                 'resource_type' => 'user',
-                'resource_id'   => (string) $cedula,
-                'description'   => 'Creación de usuario (persona) con cédula ' . $cedula,
-                'ip_address'    => $request->ip(),
-                'user_agent'    => substr((string) $request->userAgent(), 0, 255),
-                'status'        => 'success',
-                'metadata'      => null,
-                'created_at'    => now(),
+                'resource_id' => (string) $cedula,
+                'description' => 'Creación de usuario (persona) con cédula '.$cedula,
+                'ip_address' => $request->ip(),
+                'user_agent' => substr((string) $request->userAgent(), 0, 255),
+                'status' => 'success',
+                'metadata' => null,
+                'created_at' => now(),
             ]);
         } catch (\Throwable $e) {
             // no interrumpir
@@ -129,29 +135,27 @@ class UsersController extends Controller
     public function edit($id)
     {
         $user = User::with('persona.rol')->find($id);
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('users.index')->with('error', 'Usuario no encontrado.');
         }
-        $roles = Rol::orderBy('id_rol')->get();
-        return view('users.edit', ['user' => $user, 'roles' => $roles]);
+
+        return view('users.edit', ['user' => $user]);
     }
 
     /**
-     * Actualizar persona y opcionalmente contraseña del user. updated_by = admin logueado.
+     * Actualizar nombres, apellidos, teléfono y opcionalmente contraseña. Correo y rol no se modifican.
      */
     public function update(Request $request, $id)
     {
         $user = User::with('persona')->find($id);
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('users.index')->with('error', 'Usuario no encontrado.');
         }
 
         $validated = $request->validate([
-            'nombres'   => ['required', 'string', 'max:50', 'regex:/^[\pL\s]+$/u'],
-            'apellidos' => ['required', 'string', 'max:50', 'regex:/^[\pL\s]+$/u'],
-            'correo'    => 'required|email|max:50|unique:persona,correo,' . $user->persona->id_persona . ',id_persona',
-            'telefono'  => 'nullable|string|max:10',
-            'id_rol'    => 'required|integer|exists:rol,id_rol',
+            'nombres' => ['required', 'string', 'max:40', 'regex:/^[\p{L}\s]+$/u'],
+            'apellidos' => ['required', 'string', 'max:50', 'regex:/^[\p{L}\s]+$/u'],
+            'telefono' => ['nullable', 'string', 'regex:/^(\d{1,10})?$/'],
             'contraseña_actual' => 'required_with:contraseña|nullable|string',
             'contraseña' => [
                 'nullable',
@@ -162,9 +166,11 @@ class UsersController extends Controller
             ],
         ], [
             'nombres.required' => 'Los nombres son obligatorios.',
+            'nombres.max' => 'Los nombres no pueden superar 40 caracteres.',
+            'nombres.regex' => 'Los nombres solo pueden contener letras y espacios.',
             'apellidos.required' => 'Los apellidos son obligatorios.',
-            'correo.unique' => 'Este correo ya está registrado.',
-            'id_rol.exists' => 'El rol no es válido.',
+            'apellidos.regex' => 'Los apellidos solo pueden contener letras y espacios.',
+            'telefono.regex' => 'El teléfono solo puede contener números (máximo 10 dígitos).',
             'contraseña_actual.required_with' => 'Para cambiar la contraseña debe ingresar la contraseña actual.',
             'contraseña.regex' => 'La contraseña debe incluir mayúscula, minúscula, número y símbolo.',
         ]);
@@ -172,7 +178,7 @@ class UsersController extends Controller
         $actorIdPersona = Auth::user()->persona->id_persona ?? null;
 
         if ($request->filled('contraseña')) {
-            if (!Hash::check($request->contraseña_actual, $user->contraseña)) {
+            if (! Hash::check($request->contraseña_actual, $user->contraseña)) {
                 return back()->withErrors(['contraseña_actual' => 'La contraseña actual es incorrecta.'])->withInput();
             }
             $user->password = Hash::make($validated['contraseña']);
@@ -185,23 +191,21 @@ class UsersController extends Controller
         $persona = $user->persona;
         $persona->nombres = $validated['nombres'];
         $persona->apellidos = $validated['apellidos'];
-        $persona->correo = $validated['correo'];
         $persona->telefono = $validated['telefono'] ?? null;
-        $persona->id_rol = $validated['id_rol'];
         $persona->save();
 
         try {
             SecurityAuditLog::create([
-                'user_id'       => (string) Auth::user()?->id_cedula,
-                'action'        => 'user_updated',
+                'user_id' => (string) Auth::user()?->id_cedula,
+                'action' => 'user_updated',
                 'resource_type' => 'user',
-                'resource_id'   => (string) $user->id_cedula,
-                'description'   => 'Actualización de usuario (persona) cédula ' . $user->id_cedula,
-                'ip_address'    => $request->ip(),
-                'user_agent'    => substr((string) $request->userAgent(), 0, 255),
-                'status'        => 'success',
-                'metadata'      => null,
-                'created_at'    => now(),
+                'resource_id' => (string) $user->id_cedula,
+                'description' => 'Actualización de usuario (persona) cédula '.$user->id_cedula,
+                'ip_address' => $request->ip(),
+                'user_agent' => substr((string) $request->userAgent(), 0, 255),
+                'status' => 'success',
+                'metadata' => null,
+                'created_at' => now(),
             ]);
         } catch (\Throwable $e) {
             // no interrumpir
@@ -220,7 +224,7 @@ class UsersController extends Controller
         }
 
         $user = User::with('persona')->find($id);
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('users.index')->with('error', 'Usuario no encontrado.');
         }
 
@@ -231,24 +235,46 @@ class UsersController extends Controller
             }
         }
 
-        $nombreCompleto = $user->persona->nombres . ' ' . $user->persona->apellidos;
         $cedula = $user->persona->id_persona;
+        $motivoReservas = EliminacionDependenciasHelper::motivoNoEliminarUsuarioPorReservas((string) $cedula);
+        if ($motivoReservas !== null) {
+            return redirect()->route('users.index')->with('error', $motivoReservas);
+        }
 
-        $user->delete();
-        Persona::where('id_persona', $cedula)->delete();
+        $motivoRefs = EliminacionDependenciasHelper::motivoNoEliminarPersonaPorReferencias((string) $cedula);
+        if ($motivoRefs !== null) {
+            return redirect()->route('users.index')->with('error', $motivoRefs);
+        }
+
+        $nombreCompleto = $user->persona->nombres.' '.$user->persona->apellidos;
+        try {
+            DB::transaction(function () use ($user, $cedula) {
+                $user->delete();
+                Persona::where('id_persona', $cedula)->delete();
+            });
+        } catch (QueryException $e) {
+            $msg = $e->getMessage();
+            if (($e->errorInfo[1] ?? null) === 1451 || str_contains($msg, '1451') || str_contains($msg, 'foreign key constraint')) {
+                return redirect()->route('users.index')->with(
+                    'error',
+                    'No se puede eliminar este usuario porque la base de datos aún tiene registros vinculados a su persona (claves foráneas). Elimine o reasigne esas dependencias e intente de nuevo.'
+                );
+            }
+            throw $e;
+        }
 
         try {
             SecurityAuditLog::create([
-                'user_id'       => (string) Auth::user()?->id_cedula,
-                'action'        => 'user_deleted',
+                'user_id' => (string) Auth::user()?->id_cedula,
+                'action' => 'user_deleted',
                 'resource_type' => 'user',
-                'resource_id'   => (string) $cedula,
-                'description'   => 'Eliminación del usuario ' . $nombreCompleto . ' (cédula ' . $cedula . ')',
-                'ip_address'    => request()->ip(),
-                'user_agent'    => substr((string) request()->userAgent(), 0, 255),
-                'status'        => 'success',
-                'metadata'      => null,
-                'created_at'    => now(),
+                'resource_id' => (string) $cedula,
+                'description' => 'Eliminación del usuario '.$nombreCompleto.' (cédula '.$cedula.')',
+                'ip_address' => request()->ip(),
+                'user_agent' => substr((string) request()->userAgent(), 0, 255),
+                'status' => 'success',
+                'metadata' => null,
+                'created_at' => now(),
             ]);
         } catch (\Throwable $e) {
             // no interrumpir

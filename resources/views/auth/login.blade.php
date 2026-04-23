@@ -8,19 +8,15 @@
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('images/logos/logo_sena.png') }}">
     
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'sena-green': '#39B54A',
-                    }
-                }
-            }
-        }
-    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800&display=swap" rel="stylesheet">
+    
+    <!-- CSS Premium -->
+    <link rel="stylesheet" href="{{ asset('css/app-premium.css') }}">
+
+    @vite(['resources/css/app.css'])
     <style>
         .carousel-container {
             position: relative;
@@ -49,10 +45,11 @@
             opacity: 1;
         }
         .glass-container {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
         }
         .modal-overlay {
             background: rgba(0, 0, 0, 0.5);
@@ -74,7 +71,7 @@
         }
     </style>
 </head>
-<body class="overflow-hidden">
+<body class="overflow-hidden font-sans antialiased">
     <!-- Carrusel de imágenes -->
     <div class="carousel-container">
         <div class="carousel-slide active" style="background-image: url('{{ asset('images/posters/carrusel_1.jpeg') }}');"></div>
@@ -82,11 +79,11 @@
         <div class="carousel-slide" style="background-image: url('{{ asset('images/posters/carrusel_3.jpeg') }}');"></div>
     </div>
 
-    <!-- Enlace al Manual de Usuario -->
+    <!-- Enlace al manual de usuario (versión alineada con el documento) -->
     <div class="absolute top-4 right-4 z-20">
         <a href="{{ route('manual.usuario') }}"
-           class="inline-flex items-center px-3 py-1.5 rounded-lg bg-white/90 text-[#39B54A] text-xs sm:text-sm font-semibold shadow hover:bg-white hover:text-[#2d8f3a] transition-colors">
-            Manual de usuario
+           class="inline-flex items-center px-3 py-1.5 rounded-xl bg-white/90 text-[#39B54A] text-xs sm:text-sm font-semibold shadow-soft hover:bg-white hover:text-[#2d8f3a] hover:shadow-md transition-all duration-200">
+            Manual de usuario (v4.32)
         </a>
     </div>
 
@@ -96,7 +93,7 @@
             <div class="text-center mb-6 sm:mb-8">
                 <img src="{{ asset('images/logos/logo_sena.png') }}" alt="SENA" class="h-12 sm:h-16 mx-auto mb-3 sm:mb-4">
                 <h2 class="text-2xl sm:text-3xl font-bold text-[#39B54A] mb-2">Iniciar Sesión</h2>
-                <p class="text-sm sm:text-base text-gray-600">Ingresa tus credenciales para continuar</p>
+                <p class="text-sm sm:text-base text-gray-600">Ingrese a su panel de monitoreo</p>
             </div>
 
             @if (isset($isLocked) && $isLocked)
@@ -128,7 +125,7 @@
                            value="{{ old('user') }}"
                            required
                            @if (isset($isLocked) && $isLocked) disabled @endif
-                           class="w-full px-3 sm:px-4 py-2 sm:py-3 border-2 border-gray-300 rounded-lg focus:border-[#39B54A] focus:outline-none transition-colors text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                           class="w-full px-3 sm:px-4 py-2 sm:py-3 border-2 border-gray-300 rounded-xl focus:border-[#39B54A] focus:ring-2 focus:ring-[#39B54A]/20 focus:outline-none transition-all duration-200 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                            placeholder="Ingresa tu usuario">
                 </div>
 
@@ -140,7 +137,7 @@
                                name="contraseña" 
                                required
                                @if (isset($isLocked) && $isLocked) disabled @endif
-                               class="w-full px-3 sm:px-4 py-2 sm:py-3 pr-10 border-2 border-gray-300 rounded-lg focus:border-[#39B54A] focus:outline-none transition-colors text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                               class="w-full px-3 sm:px-4 py-2 sm:py-3 pr-10 border-2 border-gray-300 rounded-xl focus:border-[#39B54A] focus:ring-2 focus:ring-[#39B54A]/20 focus:outline-none transition-all duration-200 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                                placeholder="Ingresa tu contraseña">
                         <button type="button" 
                                 onclick="togglePassword('contraseña', this)" 
@@ -164,12 +161,13 @@
 
                 <button type="submit" 
                         @if (isset($isLocked) && $isLocked) disabled @endif
-                        class="w-full bg-[#39B54A] text-white py-2.5 sm:py-3 rounded-lg font-semibold text-base sm:text-lg hover:bg-[#2d8f3a] transition-colors shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                        class="btn-primary w-full inline-flex items-center justify-center gap-2 bg-[#39B54A] text-white py-2.5 sm:py-3 rounded-xl font-semibold text-base sm:text-lg hover:bg-[#2d8f3a] hover:shadow-glow transition-all duration-200 shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6 shrink-0 -scale-x-100" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                    </svg>
                     Ingresar
                 </button>
             </form>
-
-            {{-- Registro deshabilitado --}}
         </div>
     </div>
 
@@ -206,13 +204,15 @@
                 
                 <!-- Botón de Cerrar -->
                 <button onclick="closeModal()" 
-                        class="w-full bg-[#39B54A] text-white py-3 rounded-lg font-semibold text-base hover:bg-[#2d8f3a] transition-colors shadow-lg transform hover:scale-105">
+                        class="btn-primary w-full bg-[#39B54A] text-white py-3 rounded-xl font-semibold text-base hover:bg-[#2d8f3a] hover:shadow-glow transition-all duration-200 shadow-md">
                     Entendido
                 </button>
             </div>
         </div>
     </div>
     @endif
+
+    
 
     <script>
         // Carrusel automático

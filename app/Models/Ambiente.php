@@ -36,6 +36,6 @@ class Ambiente extends Model
         'num_ambiente',
         'id_estado',
         'capacidad_max',
+        'id_tipo_ambiente',
     ];
 }
-

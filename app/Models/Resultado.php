@@ -11,7 +11,12 @@ class Resultado extends Model
 
     protected $primaryKey = 'id_resultado';
 
-    protected $fillable = ['nombre_resultado', 'id_competencia'];
+    protected $fillable = [
+        'denominacion',
+        'id_competencia',
+        'horas',
+        'sesiones',
+    ];
 
     public function competencia(): BelongsTo
     {

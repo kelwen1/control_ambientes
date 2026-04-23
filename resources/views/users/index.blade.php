@@ -3,9 +3,9 @@
 @section('title', 'Usuarios')
 
 @section('content')
-    <div class="mb-6 sm:mb-8">
-        <h1 class="text-2xl sm:text-3xl font-bold text-[#39B54A] mb-2">Gestión de Usuarios</h1>
-        <p class="text-gray-600 text-sm sm:text-base">Administra personas y cuentas de acceso (usuario/contraseña = cédula)</p>
+    <div class="mb-6 sm:mb-8 animate-fade-slide-up">
+        <h1 class="text-2xl sm:text-3xl font-bold text-[#39B54A] mb-2 tracking-tight">Gestión de Usuarios</h1>
+        <p class="text-gray-600 text-sm sm:text-base">Administra personas y cuentas de acceso</p>
     </div>
 
     @if (session('success'))
@@ -26,21 +26,23 @@
         </div>
     @endif
 
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-        <div class="p-6 sm:p-8 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div class="card-premium bg-white rounded-xl shadow-card overflow-hidden hover:shadow-card-hover transition-shadow duration-300 max-w-full min-w-0">
+        <div class="p-4 sm:p-6 md:p-8 border-b border-gray-200 flex flex-col sm:flex-row sm:flex-wrap justify-between items-stretch sm:items-center gap-4 min-w-0">
             <h2 class="text-xl sm:text-2xl font-bold text-gray-800 flex items-center gap-2">
                 <span class="text-2xl">👥</span>
                 Registros de Usuarios
             </h2>
-            <div class="flex gap-3 w-full sm:w-auto">
-                <form method="GET" action="{{ route('users.index') }}" class="flex-1 sm:flex-initial flex gap-2" id="searchForm">
+            <div class="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-3 w-full min-w-0 sm:w-auto sm:justify-end sm:items-center">
+                <form method="GET" action="{{ route('users.index') }}" class="flex flex-col sm:flex-row gap-2 flex-1 min-w-0 sm:min-w-[12rem] sm:max-w-xl" id="searchForm">
                     <input type="text" name="search" id="searchInput" value="{{ $search }}"
-                           placeholder="Buscar por nombre, cédula, correo o usuario..."
-                           class="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-[#39B54A] focus:outline-none transition-colors text-sm">
-                    <button type="submit" class="px-4 py-2 bg-[#39B54A] text-white rounded-lg hover:bg-[#2d8f3a] transition-colors shadow-lg font-medium">🔍 Buscar</button>
+                           placeholder="Buscar por cédula..."
+                           inputmode="numeric"
+                           autocomplete="off"
+                           class="w-full min-w-0 flex-1 px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-[#39B54A] focus:ring-2 focus:ring-[#39B54A]/20 focus:outline-none transition-all duration-200 text-sm">
+                    <button type="submit" class="btn-primary w-full sm:w-auto shrink-0 px-4 py-2 bg-[#39B54A] text-white rounded-xl hover:bg-[#2d8f3a] hover:shadow-glow transition-all duration-200 shadow-md font-medium">🔍 Buscar</button>
                 </form>
                 <a href="{{ route('users.create') }}"
-                   class="px-4 sm:px-6 py-2 sm:py-3 bg-[#39B54A] text-white rounded-lg hover:bg-[#2d8f3a] transition-colors shadow-lg transform hover:scale-105 text-sm sm:text-base font-semibold flex items-center gap-2">
+                   class="btn-primary px-4 sm:px-6 py-2 sm:py-3 bg-[#39B54A] text-white rounded-xl hover:bg-[#2d8f3a] hover:shadow-glow transition-all duration-200 shadow-md text-sm sm:text-base font-semibold inline-flex items-center justify-center gap-2 w-full sm:w-auto">
                     <span>➕</span>
                     <span>Agregar Usuario</span>
                 </a>

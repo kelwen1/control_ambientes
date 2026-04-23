@@ -17,6 +17,12 @@ class SecurityHeaders
     {
         $response = $next($request);
 
+        if (app()->environment('local', 'testing')) {
+            // En local, Vite (HMR) carga JS desde :5173; una CSP fija bloquea el panel y el login.
+            // En producción se aplica la CSP debajo.
+            return $response;
+        }
+
         // Prevenir que el navegador interprete content-type incorrectamente (ej: MIME sniffing)
         $response->headers->set('X-Content-Type-Options', 'nosniff');
         // Evitar que la app se cargue en iframes de otros sitios (clickjacking)
@@ -28,13 +34,13 @@ class SecurityHeaders
 
         // Content-Security-Policy: limita orígenes de scripts, estilos, imágenes, etc. para mitigar XSS.
         // Incluye 'unsafe-inline' porque Laravel/Blade usa scripts inline.
-        // cdn.tailwindcss.com: Tailwind CSS desde CDN (script que genera los estilos).
+        // Tailwind se sirve con Vite (public/build) — sin CDN. Google Fonts: link + fuentes en gstatic.
         $csp = implode('; ', [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com",
-            "style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com",
+            "script-src 'self' 'unsafe-inline'",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
             "img-src 'self' data: https:",
-            "font-src 'self'",
+            "font-src 'self' data: https://fonts.gstatic.com",
             "connect-src 'self'",
             "base-uri 'self'",
             "form-action 'self'",
@@ -46,11 +52,10 @@ class SecurityHeaders
         // durante 1 año, reduciendo ataques de downgrade.
         $host = $request->getHost();
         $isLocal = in_array($host, ['localhost', '127.0.0.1'], true) || str_starts_with($host, '127.');
-        if (config('app.env') === 'production' && !$isLocal) {
+        if (config('app.env') === 'production' && ! $isLocal) {
             $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
         }
 
         return $response;
     }
 }
-

@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Ambientes y Reservas - SENA</title>
+    <title>Programación - SENA</title>
     <style>
         body { font-family: DejaVu Sans, sans-serif; font-size: 10px; }
         h1 { color: #39B54A; font-size: 18px; margin-bottom: 16px; }
@@ -14,7 +14,7 @@
     </style>
 </head>
 <body>
-    <h1>Ambientes y Reservas - SENA</h1>
+    <h1>Programación - SENA</h1>
     <p>Generado: {{ date('d/m/Y H:i') }}</p>
     <table>
         <thead>
@@ -23,11 +23,9 @@
                 <th>Ficha</th>
                 <th>Estado</th>
                 <th>Día</th>
-                <th>Hora Inicio</th>
-                <th>Hora Fin</th>
+                <th>Jornada</th>
                 <th>Fecha Inicio</th>
                 <th>Fecha Fin</th>
-                <th>Observaciones</th>
             </tr>
         </thead>
         <tbody>
@@ -36,12 +34,10 @@
                 <td>{{ $r->num_ambiente ?? 'N/A' }}</td>
                 <td>{{ $r->num_ficha ?? 'N/A' }}</td>
                 <td>{{ $r->nombre_estado ?? 'N/A' }}</td>
-                <td>@if($r->dia_semana == 'lunes') Lunes a Viernes @elseif($r->dia_semana == 'sabado') Sábados @elseif($r->dia_semana == 'domingo') Domingos @else {{ ucfirst($r->dia_semana ?? 'N/A') }} @endif</td>
-                <td>{{ $r->hora_inicio }}</td>
-                <td>{{ $r->hora_fin }}</td>
+                <td>{{ match($r->dia_semana ?? '') { 'lunes' => 'Lunes', 'martes' => 'Martes', 'miercoles' => 'Miércoles', 'jueves' => 'Jueves', 'viernes' => 'Viernes', 'sabado' => 'Sábado', 'domingo' => 'Domingo', default => ucfirst($r->dia_semana ?? 'N/A') } }}</td>
+                <td>@php $m = [1=>'manana',2=>'tarde',3=>'noche',4=>'fin_semana']; $k = $m[$r->id_jornada ?? 0] ?? null; echo $k ? (config("jornadas.$k.label") ?? ucfirst($k)) : 'N/A'; @endphp</td>
                 <td>{{ $r->fecha_inicio ? \Carbon\Carbon::parse($r->fecha_inicio)->format('d/m/Y') : 'N/A' }}</td>
                 <td>{{ $r->fecha_fin ? \Carbon\Carbon::parse($r->fecha_fin)->format('d/m/Y') : 'N/A' }}</td>
-                <td>{{ $r->observaciones ?? '—' }}</td>
             </tr>
             @endforeach
         </tbody>

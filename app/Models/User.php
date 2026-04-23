@@ -138,8 +138,27 @@ class User extends Authenticatable
     public function isCoordinator(): bool
     {
         $id = (int) ($this->persona?->id_rol ?? 0);
+
         return $id === config('roles.ids.coordinacion_L', 2)
             || $id === config('roles.ids.coordinacion', 3);
+    }
+
+    /** Coordinador líder (coordinacion_L): gestión amplia; no administra usuarios (solo el administrador). */
+    public function isCoordinatorL(): bool
+    {
+        return (int) ($this->persona?->id_rol ?? 0) === config('roles.ids.coordinacion_L', 2);
+    }
+
+    /** Coordinador normal: consulta en módulos, reportes, crear reservas; sin edición en fichas/catálogos. */
+    public function isCoordinatorOnly(): bool
+    {
+        return (int) ($this->persona?->id_rol ?? 0) === config('roles.ids.coordinacion', 3);
+    }
+
+    /** Administrador o coordinador L: crear/editar/eliminar catálogos y fichas (no aplica al coordinador normal). */
+    public function canManageCatalog(): bool
+    {
+        return $this->isAdmin() || $this->isCoordinatorL();
     }
 
     /** Instructor. */

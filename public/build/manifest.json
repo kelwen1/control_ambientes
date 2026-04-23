@@ -1,55 +1,13 @@
 {
   "resources/css/app.css": {
-    "file": "assets/app.css",
+    "file": "assets/app-Ok58CdCx.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app.js",
+    "file": "assets/app-DKmeOBzT.js",
+    "name": "app",
     "src": "resources/js/app.js",
-    "isEntry": true,
-    "imports": [
-      "resources/js/bootstrap.js"
-    ]
-  },
-  "resources/js/bootstrap.js": {
-    "file": "assets/bootstrap.js",
-    "src": "resources/js/bootstrap.js",
-    "isEntry": false
-  },
-  "resources/js/fichas.js": {
-    "file": "assets/fichas.js",
-    "src": "resources/js/fichas.js",
-    "isEntry": true
-  },
-  "resources/js/ambientes.js": {
-    "file": "assets/ambientes.js",
-    "src": "resources/js/ambientes.js",
-    "isEntry": true
-  },
-  "resources/js/inventario.js": {
-    "file": "assets/inventario.js",
-    "src": "resources/js/inventario.js",
-    "isEntry": true
-  },
-  "resources/js/users.js": {
-    "file": "assets/users.js",
-    "src": "resources/js/users.js",
-    "isEntry": true
-  },
-  "resources/js/reservas.js": {
-    "file": "assets/reservas.js",
-    "src": "resources/js/reservas.js",
-    "isEntry": true
-  },
-  "resources/js/ajustes.js": {
-    "file": "assets/ajustes.js",
-    "src": "resources/js/ajustes.js",
-    "isEntry": true
-  },
-  "resources/js/auth.js": {
-    "file": "assets/auth.js",
-    "src": "resources/js/auth.js",
     "isEntry": true
   }
 }

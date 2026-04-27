@@ -41,6 +41,11 @@
                            class="w-full min-w-0 flex-1 px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-[#39B54A] focus:ring-2 focus:ring-[#39B54A]/20 focus:outline-none transition-all duration-200 text-sm">
                     <button type="submit" class="btn-primary w-full sm:w-auto shrink-0 px-4 py-2 bg-[#39B54A] text-white rounded-xl hover:bg-[#2d8f3a] hover:shadow-glow transition-all duration-200 shadow-md font-medium">🔍 Buscar</button>
                 </form>
+                <a href="{{ route('users.role-update') }}"
+                   class="btn-primary w-full sm:w-auto shrink-0 px-4 py-2 bg-[#39B54A] text-white rounded-xl hover:bg-[#2d8f3a] hover:shadow-glow transition-all duration-200 shadow-md text-sm sm:text-base font-semibold inline-flex items-center justify-center gap-2">
+                    <span>🔄</span>
+                    <span>Actualizar roles</span>
+                </a>
                 <a href="{{ route('users.create') }}"
                    class="btn-primary px-4 sm:px-6 py-2 sm:py-3 bg-[#39B54A] text-white rounded-xl hover:bg-[#2d8f3a] hover:shadow-glow transition-all duration-200 shadow-md text-sm sm:text-base font-semibold inline-flex items-center justify-center gap-2 w-full sm:w-auto">
                     <span>➕</span>

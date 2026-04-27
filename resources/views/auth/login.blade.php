@@ -83,7 +83,7 @@
     <div class="absolute top-4 right-4 z-20">
         <a href="{{ route('manual.usuario') }}"
            class="inline-flex items-center px-3 py-1.5 rounded-xl bg-white/90 text-[#39B54A] text-xs sm:text-sm font-semibold shadow-soft hover:bg-white hover:text-[#2d8f3a] hover:shadow-md transition-all duration-200">
-            Manual de usuario (v4.32)
+            Manual de usuario (v4.5)
         </a>
     </div>
 

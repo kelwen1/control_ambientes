@@ -5,10 +5,6 @@
 @section('content')
     @php
         $horasPorSesion = 6;
-        $etiquetaCatalogo = 'Catálogo común (todas las fichas / programas)';
-        $nombreProgramaFijo = !empty($competenciaPreseleccionada)
-            ? (optional($competenciaPreseleccionada->programa)->nombre_programa ?? $etiquetaCatalogo)
-            : '';
         $dComplejoIni = !empty($competenciaPreseleccionada) ? $competenciaPreseleccionada->horasDuracionEnComplejo() : 0;
         $sesTotCompIni = $dComplejoIni > 0 ? intdiv($dComplejoIni, $horasPorSesion) : 0;
         $restantesIni = $horasRestantesPreseleccion ?? 0;
@@ -17,7 +13,7 @@
         <h1 class="text-2xl sm:text-3xl font-bold text-[#39B54A] mb-2 tracking-tight">
             Crear Nuevo Resultado
         </h1>
-        <p class="text-gray-600 text-sm sm:text-base">Asocia el resultado a una competencia.</p>
+        <p class="text-gray-600 text-sm sm:text-base">Complete el formulario y guarde. Las sesiones se calculan según las horas indicadas.</p>
     </div>
 
     <div class="card-premium bg-white rounded-xl shadow-card p-6 sm:p-8 hover:shadow-card-hover transition-shadow duration-300">
@@ -25,11 +21,8 @@
               method="POST"
               action="{{ route('resultados.store') }}"
               class="space-y-6"
-              data-old-programa="{{ old('id_programa') }}"
               data-old-competencia="{{ old('id_competencia', $competenciaPreseleccionada->id_competencia ?? '') }}"
               data-fixed-competencia="{{ $competenciaPreseleccionada->id_competencia ?? '' }}"
-              data-fixed-programa=""
-              data-fixed-programa-nombre="{{ $nombreProgramaFijo !== '' ? $nombreProgramaFijo : $etiquetaCatalogo }}"
               data-fixed-duracion-complejo="{{ $dComplejoIni }}"
               data-fixed-sesiones-totales="{{ $sesTotCompIni }}"
               data-fixed-horas-restantes="{{ (int) ($restantesIni ?? 0) }}"
@@ -54,20 +47,7 @@
                 @enderror
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                    <label for="id_programa_display" class="block text-sm sm:text-base font-semibold text-gray-700 mb-2">
-                        Ámbito
-                    </label>
-                    <input type="text"
-                           id="id_programa_display"
-                           value="{{ $nombreProgramaFijo !== '' ? $nombreProgramaFijo : $etiquetaCatalogo }}"
-                           readonly
-                           class="w-full px-4 py-3 border-2 border-gray-200 bg-gray-50 text-gray-700 rounded-xl text-sm sm:text-base cursor-not-allowed">
-                    <input type="hidden" name="id_programa" id="id_programa" value="{{ old('id_programa', '') }}">
-                </div>
-
-                <div>
+            <div>
                     <label for="id_competencia" class="block text-sm sm:text-base font-semibold text-gray-700 mb-2">
                         Competencia <span class="text-red-500">*</span>
                     </label>
@@ -95,7 +75,6 @@
                                 $estaLlena = $cantidad > 0 && $resultadosActuales >= $cantidad;
                             @endphp
                             <option value="{{ $competencia->id_competencia }}"
-                                    data-programa-nombre="{{ $etiquetaCatalogo }}"
                                     data-duracion-complejo="{{ $dComp }}"
                                     data-sesiones-totales-comp="{{ $sesTotComp }}"
                                     data-horas-restantes="{{ $restantes }}"
@@ -111,45 +90,46 @@
                     @error('id_competencia')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
-                </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                    <label for="horas" class="block text-sm sm:text-base font-semibold text-gray-700 mb-2">
+            <div class="space-y-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 sm:items-end gap-x-6 gap-y-2">
+                    <label for="horas" class="block text-sm sm:text-base font-semibold text-gray-700">
                         Horas <span class="text-red-500">*</span>
                     </label>
-                    <p id="horasLimiteLegend" class="mb-2 text-sm text-gray-700 leading-snug hidden"></p>
-                    <input type="text"
-                           name="horas"
-                           id="horas"
-                           value="{{ old('horas') }}"
-                           required
-                           inputmode="numeric"
-                           maxlength="7"
-                           autocomplete="off"
-                           placeholder=""
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-[#39B54A] focus:ring-2 focus:ring-[#39B54A]/20 focus:outline-none transition-all duration-200 text-sm sm:text-base">
-                    <p class="mt-1 text-xs text-gray-500">Mínimo {{ $horasPorSesion }} h (1 sesión de {{ $horasPorSesion }} h). Enteros. Si supera el máximo del cupo, el valor se ajusta; las sesiones = horas ÷ {{ $horasPorSesion }}.</p>
-                    <p id="horasCupoAviso" class="mt-1 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 hidden"></p>
-                    @error('horas')
-                        <p id="horas-error-server" class="mt-1 text-sm text-red-600" role="alert">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label for="sesiones_display" class="block text-sm sm:text-base font-semibold text-gray-700 mb-2">
+                    <label for="sesiones_display" class="block text-sm sm:text-base font-semibold text-gray-700">
                         Sesiones
                     </label>
-                    <input type="text"
-                           id="sesiones_display"
-                           readonly
-                           tabindex="-1"
-                           value=""
-                           placeholder="—"
-                           class="w-full px-4 py-3 border-2 border-gray-200 bg-gray-50 text-gray-800 rounded-xl text-sm sm:text-base cursor-default">
-                    <p class="mt-1 text-xs text-gray-500">Horas efectivas (tras el límite) ÷ {{ $horasPorSesion }}.</p>
                 </div>
+                <p id="horasLimiteLegend" class="text-sm text-gray-700 leading-snug hidden [overflow-wrap:anywhere]"></p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 sm:items-start">
+                    <div class="min-w-0">
+                        <input type="text"
+                               name="horas"
+                               id="horas"
+                               value="{{ old('horas') }}"
+                               required
+                               inputmode="numeric"
+                               maxlength="7"
+                               autocomplete="off"
+                               placeholder=""
+                               class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-[#39B54A] focus:ring-2 focus:ring-[#39B54A]/20 focus:outline-none transition-all duration-200 text-sm sm:text-base">
+                        <p id="horasCupoAviso" class="mt-2 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 hidden"></p>
+                        @error('horas')
+                            <p id="horas-error-server" class="mt-2 text-sm text-red-600" role="alert">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div class="min-w-0">
+                        <input type="text"
+                               id="sesiones_display"
+                               readonly
+                               tabindex="-1"
+                               value=""
+                               placeholder="—"
+                               class="w-full px-4 py-3 border-2 border-gray-200 bg-gray-50 text-gray-800 rounded-xl text-sm sm:text-base cursor-default">
+                    </div>
+                </div>
+                <p class="text-xs text-gray-500 -mt-1">Mínimo <span class="font-medium">{{ $horasPorSesion }} h</span> por resultado. Las sesiones se calculan al escribir (horas ÷ {{ $horasPorSesion }}). Si pasa el cupo del complejo, el valor se ajusta automáticamente.</p>
             </div>
 
             <div class="flex flex-col sm:flex-row gap-4 pt-4 border-t border-gray-200">
@@ -167,8 +147,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const programaDisplay = document.getElementById('id_programa_display');
-            const programaHidden = document.getElementById('id_programa');
             const competenciaSelect = document.getElementById('id_competencia');
             const horasInput = document.getElementById('horas');
             const sesionesDisplay = document.getElementById('sesiones_display');
@@ -179,8 +157,6 @@
             const HORAS_POR_SESION = form && form.dataset.horasPorSesion ? parseInt(String(form.dataset.horasPorSesion), 10) : 6;
             const oldCompetencia = form && form.dataset.oldCompetencia ? form.dataset.oldCompetencia : null;
             const fixedCompetencia = form && form.dataset.fixedCompetencia ? form.dataset.fixedCompetencia : '';
-            const fixedPrograma = form && form.dataset.fixedPrograma ? form.dataset.fixedPrograma : '';
-            const fixedProgramaNombre = form && form.dataset.fixedProgramaNombre ? form.dataset.fixedProgramaNombre : '';
             let maxHorasCupoForResult = 0;
 
             function aplicarContextoCompetencia(dComp, sesTot, restantes) {
@@ -285,17 +261,12 @@
             function onCompetenciaChange() {
                 const opt = competenciaSelect.options[competenciaSelect.selectedIndex];
                 if (opt && opt.value) {
-                    const pnombre = opt.getAttribute('data-programa-nombre') || '';
-                    if (programaDisplay) programaDisplay.value = pnombre;
-                    if (programaHidden) programaHidden.value = '';
                     aplicarContextoCompetencia(
                         opt.getAttribute('data-duracion-complejo'),
                         opt.getAttribute('data-sesiones-totales-comp'),
                         opt.getAttribute('data-horas-restantes')
                     );
                 } else {
-                    if (programaDisplay) programaDisplay.value = '';
-                    if (programaHidden) programaHidden.value = '';
                     maxHorasCupoForResult = 0;
                     if (horasLimiteLegend) {
                         horasLimiteLegend.textContent = '';
@@ -338,12 +309,6 @@
                 if (competenciaHidden && !competenciaHidden.value) {
                     competenciaHidden.value = fixedCompetencia;
                 }
-                if (programaHidden && !programaHidden.value) {
-                    programaHidden.value = fixedPrograma;
-                }
-                if (programaDisplay) {
-                    programaDisplay.value = fixedProgramaNombre;
-                }
                 var fd = form.getAttribute('data-fixed-duracion-complejo') || '0';
                 var fs = form.getAttribute('data-fixed-sesiones-totales') || '0';
                 var fr = form.getAttribute('data-fixed-horas-restantes') || '0';
@@ -373,12 +338,12 @@
                         return false;
                     }
                     var h = parseInt((horasInput && horasInput.value) ? horasInput.value.replace(/\D/g, '') : '', 10);
-                    if (isNaN(h) || h < 1 || h > maxHorasCupoForResult) {
+                    if (isNaN(h) || h < HORAS_POR_SESION || h > maxHorasCupoForResult) {
                         e.preventDefault();
                         showAppMessageModal({
                             type: 'error',
                             title: 'Horas fuera de rango',
-                            message: 'Las horas deben estar entre 1 y ' + maxHorasCupoForResult + ' (cupo en el complejo).',
+                            message: 'Indique entre ' + HORAS_POR_SESION + ' y ' + maxHorasCupoForResult + ' h (cupo en el complejo; mínimo 1 sesión de ' + HORAS_POR_SESION + ' h).',
                         });
                         return false;
                     }

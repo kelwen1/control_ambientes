@@ -7,7 +7,7 @@
         <h1 class="text-2xl sm:text-3xl font-bold text-[#39B54A] mb-2 tracking-tight">
             Resultados de Aprendizaje
         </h1>
-        <p class="text-gray-600 text-sm sm:text-base">Cada resultado pertenece a una competencia del catálogo común (no exclusiva de un solo programa).</p>
+        <p class="text-gray-600 text-sm sm:text-base">Busque, filtre por competencia o añada un resultado nuevo.</p>
     </div>
 
     @if (session('success'))
@@ -22,17 +22,22 @@
     @endif
 
     <div class="card-premium bg-white rounded-xl shadow-card overflow-hidden hover:shadow-card-hover transition-shadow duration-300 max-w-full min-w-0">
-        <div class="p-4 sm:p-6 md:p-8 border-b border-gray-200 flex flex-col lg:flex-row lg:justify-between gap-4 min-w-0">
-            <div class="min-w-0">
+        <div class="p-4 sm:p-6 md:p-8 border-b border-gray-200 flex min-w-0 flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div class="min-w-0 md:shrink">
                 <h2 class="text-xl sm:text-2xl font-bold text-gray-800 flex items-center gap-2">
                     <span class="text-2xl">📄</span>
                     Resultados
                 </h2>
-                <p class="text-xs text-gray-500 mt-1">Un resultado se asocia a una competencia; las competencias se comparten entre programas y fichas.</p>
             </div>
-            <div class="flex flex-col gap-3 w-full min-w-0 lg:w-auto lg:max-w-5xl lg:items-end">
+            <div class="flex w-full min-w-0 flex-col gap-3 md:w-auto md:min-w-0 md:flex-1 md:items-center md:justify-end">
                 @if(empty($filtroFijoCompetencia))
                 <form method="GET" action="{{ route('resultados.index') }}" class="flex flex-col sm:flex-row sm:flex-wrap gap-2 w-full min-w-0">
+                    <input type="text"
+                           name="search"
+                           value="{{ $search }}"
+                           placeholder="Buscar por denominación..."
+                           class="w-full min-w-0 flex-1 px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-[#39B54A] focus:ring-2 focus:ring-[#39B54A]/20 focus:outline-none transition-all duration-200 text-sm sm:min-w-[10rem]">
+
                     <select name="competencia"
                             class="w-full sm:w-auto sm:min-w-[9rem] px-3 py-2 border-2 border-gray-300 rounded-xl focus:border-[#39B54A] focus:ring-2 focus:ring-[#39B54A]/20 focus:outline-none transition-all duration-200 text-xs sm:text-sm">
                         <option value="">Todas las competencias</option>
@@ -49,17 +54,31 @@
                     </button>
                 </form>
                 @else
-                <div class="text-sm text-gray-600 flex flex-wrap items-baseline gap-x-1 gap-y-1">
-                    <span>Mostrando resultados de la competencia:</span>
-                    <span class="font-semibold text-gray-800 break-words">{{ $competenciaFija->nombre_competencia ?? 'seleccionada' }}</span>
+                <div class="flex w-full min-w-0 flex-row flex-nowrap items-center justify-end gap-2 overflow-x-auto pb-0.5 [scrollbar-gutter:stable]">
+                    <p class="flex min-w-0 max-w-[50vw] shrink items-baseline gap-1 text-sm text-gray-600 sm:max-w-[12rem] md:max-w-xs lg:max-w-sm" title="{{ $competenciaFija->nombre_competencia ?? 'seleccionada' }}">
+                        <span class="shrink-0">Competencia:</span>
+                        <span class="min-w-0 truncate font-semibold text-gray-800">{{ $competenciaFija->nombre_competencia ?? 'seleccionada' }}</span>
+                    </p>
+                    <form method="GET" action="{{ route('resultados.index') }}" class="flex min-w-0 flex-1 flex-row items-center gap-2 sm:min-w-[12rem] md:min-w-[16rem]">
+                        <input type="hidden" name="competencia" value="{{ $competenciaSeleccionada }}">
+                        <input type="text"
+                               name="search"
+                               value="{{ $search }}"
+                               placeholder="Buscar denominación…"
+                               class="min-w-0 flex-1 px-3 py-2 border-2 border-gray-300 rounded-xl focus:border-[#39B54A] focus:ring-2 focus:ring-[#39B54A]/20 focus:outline-none transition-all duration-200 text-sm">
+                        <button type="submit"
+                                class="btn-primary shrink-0 px-3 py-2 sm:px-4 bg-[#39B54A] text-white rounded-xl hover:bg-[#2d8f3a] hover:shadow-glow transition-all duration-200 shadow-md text-sm font-medium">
+                            🔍 Buscar
+                        </button>
+                    </form>
+                    @if(auth()->user()->canManageCatalog())
+                    <a href="{{ route('resultados.create', ['competencia' => $competenciaSeleccionada]) }}"
+                       class="btn-primary px-3 py-2 sm:px-4 bg-[#39B54A] text-white rounded-xl hover:bg-[#2d8f3a] hover:shadow-glow transition-all duration-200 shadow-md text-sm font-semibold inline-flex items-center justify-center gap-2 shrink-0">
+                        <span>➕</span>
+                        <span class="whitespace-nowrap">Nuevo Resultado</span>
+                    </a>
+                    @endif
                 </div>
-                @endif
-                @if(!empty($filtroFijoCompetencia) && auth()->user()->canManageCatalog())
-                <a href="{{ route('resultados.create', ['competencia' => $competenciaSeleccionada]) }}"
-                   class="btn-primary px-4 py-2 bg-[#39B54A] text-white rounded-xl hover:bg-[#2d8f3a] hover:shadow-glow transition-all duration-200 shadow-md text-sm font-semibold inline-flex items-center justify-center gap-2 shrink-0 w-full sm:w-auto">
-                    <span>➕</span>
-                    <span>Nuevo Resultado</span>
-                </a>
                 @endif
             </div>
         </div>
@@ -121,8 +140,25 @@
                 </div>
             @endif
         @else
-            <div class="p-8 text-center text-gray-500">
-                No hay resultados registrados.
+            <div class="p-8 text-center text-gray-500 space-y-2">
+                @if(!empty($filtroFijoCompetencia))
+                    <p class="text-base">
+                        @if($search !== '' && $search !== null)
+                            No hay resultados con ese criterio de búsqueda.
+                        @else
+                            Aún no hay resultados bajo <span class="font-medium text-gray-700">esta competencia</span>.
+                        @endif
+                    </p>
+                    @if(auth()->user()->canManageCatalog())
+                        <p class="text-sm">Puede añadir uno con <span class="font-medium text-gray-700">Nuevo Resultado</span> o abrir el <a href="{{ route('resultados.index') }}" class="text-[#39B54A] hover:underline font-medium">listado completo con buscador</a>.</p>
+                    @endif
+                @else
+                    @if($search !== '' && $search !== null || $competenciaSeleccionada)
+                        <p>No hay resultados con esos criterios. Ajuste la búsqueda o el filtro de competencia.</p>
+                    @else
+                        <p>No hay resultados registrados todavía.</p>
+                    @endif
+                @endif
             </div>
         @endif
     </div>

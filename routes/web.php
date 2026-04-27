@@ -104,6 +104,9 @@ Route::prefix('s')->middleware(['auth', 'force.https'])->group(function () {
 
     // Usuarios (solo administrador)
     Route::middleware('admin')->group(function () {
+        Route::get('/administracion/actualizacion-roles', [UsersController::class, 'showRoleUpdate'])->name('users.role-update');
+        Route::get('/administracion/buscar-rol', [UsersController::class, 'lookupCedulaForRoleUpdate'])->name('users.role-lookup');
+        Route::put('/administracion/rol', [UsersController::class, 'updateRole'])->name('users.role-apply')->middleware('throttle:users');
         Route::get('/administracion', [UsersController::class, 'index'])->name('users.index');
         Route::get('/administracion/nuevo', [UsersController::class, 'create'])->name('users.create');
         Route::post('/administracion', [UsersController::class, 'store'])->name('users.store')->middleware('throttle:users');

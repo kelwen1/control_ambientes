@@ -14,7 +14,7 @@
         <h1 class="text-2xl sm:text-3xl font-bold text-[#39B54A] mb-2 tracking-tight">
             Editar Competencia
         </h1>
-        <p class="text-gray-600 text-sm sm:text-base">Modifica el nombre, horas totales y porcentaje. Código, norma y cantidad de resultados no se editan desde aquí. La competencia sigue siendo de catálogo común (no está fijada a un programa).</p>
+        <p class="text-gray-600 text-sm sm:text-base">Modifica el nombre, horas totales y porcentaje. Código, norma y cantidad de resultados no se editan desde aquí.</p>
     </div>
 
     <div class="card-premium bg-white rounded-xl shadow-card p-6 sm:p-8 hover:shadow-card-hover transition-shadow duration-300">

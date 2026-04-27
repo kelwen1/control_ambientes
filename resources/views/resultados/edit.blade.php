@@ -5,15 +5,13 @@
 @section('content')
     @php
         $horasPorSesion = 6;
-        $etiquetaCatalogo = 'Catálogo común (todas las fichas / programas)';
-        $nombrePrograma = optional($resultado->competencia?->programa)->nombre_programa ?? $etiquetaCatalogo;
         $nombreCompetencia = $resultado->competencia->nombre_competencia ?? '—';
     @endphp
     <div class="mb-6 sm:mb-8 animate-fade-slide-up">
         <h1 class="text-2xl sm:text-3xl font-bold text-[#39B54A] mb-2 tracking-tight">
             Editar Resultado
         </h1>
-        <p class="text-gray-600 text-sm sm:text-base">Modifique la denominación, las horas y revise las sesiones calculadas automáticamente.</p>
+        <p class="text-gray-600 text-sm sm:text-base">Ajuste el nombre o las horas; al guardar, las sesiones se recalculan solas.</p>
     </div>
 
     <div class="card-premium bg-white rounded-xl shadow-card p-6 sm:p-8 hover:shadow-card-hover transition-shadow duration-300">
@@ -45,20 +43,7 @@
                 @enderror
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                    <label for="id_programa_display" class="block text-sm sm:text-base font-semibold text-gray-700 mb-2">
-                        Ámbito
-                    </label>
-                    <input type="text"
-                           id="id_programa_display"
-                           value="{{ $nombrePrograma }}"
-                           readonly
-                           tabindex="-1"
-                           class="w-full px-4 py-3 border-2 border-gray-200 bg-gray-50 text-gray-700 rounded-xl text-sm sm:text-base cursor-not-allowed">
-                </div>
-
-                <div>
+            <div>
                     <label for="id_competencia_display" class="block text-sm sm:text-base font-semibold text-gray-700 mb-2">
                         Competencia
                     </label>
@@ -68,44 +53,45 @@
                            readonly
                            tabindex="-1"
                            class="w-full px-4 py-3 border-2 border-gray-200 bg-gray-50 text-gray-700 rounded-xl text-sm sm:text-base cursor-not-allowed">
-                </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                    <label for="horas" class="block text-sm sm:text-base font-semibold text-gray-700 mb-2">
+            <div class="space-y-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 sm:items-end gap-x-6 gap-y-2">
+                    <label for="horas" class="block text-sm sm:text-base font-semibold text-gray-700">
                         Horas <span class="text-red-500">*</span>
                     </label>
-                    <p id="horasLimiteLegend" class="mb-2 text-sm text-gray-700 leading-snug hidden"></p>
-                    <input type="text"
-                           name="horas"
-                           id="horas"
-                           value="{{ old('horas', $resultado->horas) }}"
-                           required
-                           inputmode="numeric"
-                           maxlength="7"
-                           autocomplete="off"
-                           placeholder=""
-                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-[#39B54A] focus:ring-2 focus:ring-[#39B54A]/20 focus:outline-none transition-all duration-200 text-sm sm:text-base">
-                    <p class="mt-1 text-xs text-gray-500">Mínimo {{ $horasPorSesion }} h (1 sesión de {{ $horasPorSesion }} h). Enteros. Si supera el máximo del cupo, el valor se ajusta; las sesiones = horas ÷ {{ $horasPorSesion }}.</p>
-                    <p id="horasCupoAviso" class="mt-1 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 hidden"></p>
-                    @error('horas')
-                        <p id="horas-error-server" class="mt-1 text-sm text-red-600" role="alert">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label for="sesiones_display" class="block text-sm sm:text-base font-semibold text-gray-700 mb-2">
+                    <label for="sesiones_display" class="block text-sm sm:text-base font-semibold text-gray-700">
                         Sesiones
                     </label>
-                    <input type="text"
-                           id="sesiones_display"
-                           readonly
-                           tabindex="-1"
-                           value=""
-                           class="w-full px-4 py-3 border-2 border-gray-200 bg-gray-50 text-gray-800 rounded-xl text-sm sm:text-base cursor-default">
-                    <p class="mt-1 text-xs text-gray-500">Horas efectivas (tras el límite) ÷ {{ $horasPorSesion }}. Se guardan al actualizar.</p>
                 </div>
+                <p id="horasLimiteLegend" class="text-sm text-gray-700 leading-snug hidden [overflow-wrap:anywhere]"></p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 sm:items-start">
+                    <div class="min-w-0">
+                        <input type="text"
+                               name="horas"
+                               id="horas"
+                               value="{{ old('horas', $resultado->horas) }}"
+                               required
+                               inputmode="numeric"
+                               maxlength="7"
+                               autocomplete="off"
+                               placeholder=""
+                               class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-[#39B54A] focus:ring-2 focus:ring-[#39B54A]/20 focus:outline-none transition-all duration-200 text-sm sm:text-base">
+                        <p id="horasCupoAviso" class="mt-2 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 hidden"></p>
+                        @error('horas')
+                            <p id="horas-error-server" class="mt-2 text-sm text-red-600" role="alert">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div class="min-w-0">
+                        <input type="text"
+                               id="sesiones_display"
+                               readonly
+                               tabindex="-1"
+                               value=""
+                               class="w-full px-4 py-3 border-2 border-gray-200 bg-gray-50 text-gray-800 rounded-xl text-sm sm:text-base cursor-default">
+                    </div>
+                </div>
+                <p class="text-xs text-gray-500 -mt-1">Mínimo <span class="font-medium">{{ $horasPorSesion }} h</span> por resultado. Las sesiones se recalculan al guardar (horas ÷ {{ $horasPorSesion }}). Si pasa el cupo del complejo, el valor se ajusta automáticamente.</p>
             </div>
 
             <div class="flex flex-col sm:flex-row gap-4 pt-4 border-t border-gray-200">

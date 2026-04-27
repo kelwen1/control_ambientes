@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Helpers\DiaSemanaDesdeFechaHelper;
 use App\Models\Reserva;
 use App\Rules\DiaSemanaCoincideConFechaInicio;
 use Illuminate\Foundation\Http\FormRequest;
@@ -41,6 +42,8 @@ class UpdateReservaRequest extends FormRequest
             $ff = \Carbon\Carbon::parse($ff)->format('Y-m-d');
         }
 
+        $diaClave = ($fi !== null && $fi !== '') ? DiaSemanaDesdeFechaHelper::claveDesdeYmd((string) $fi) : null;
+
         $this->merge([
             'id_ficha' => $reserva->id_ficha,
             'id_persona' => $reserva->id_persona,
@@ -48,6 +51,7 @@ class UpdateReservaRequest extends FormRequest
             'fecha_fin' => $ff,
             'jornada' => $jornadaClave,
             'id_estado_reserva' => $reserva->id_estado_reserva,
+            'dia_semana' => $diaClave ?? '',
         ]);
     }
 

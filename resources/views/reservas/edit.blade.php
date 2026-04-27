@@ -7,7 +7,7 @@
         <h1 class="text-2xl sm:text-3xl font-bold text-[#39B54A] mb-2">
             Editar Reserva
         </h1>
-        <p class="text-gray-600 text-sm sm:text-base">Modifica la información de la reserva</p>
+        <p class="text-gray-600 text-sm sm:text-base">Modifica la información de la programacion</p>
     </div>
 
     @if (session('success'))
@@ -66,7 +66,7 @@
                                 </option>
                             @endforeach
                         </select>
-                        <p class="mt-1 text-xs text-gray-500">Competencias del catálogo común; el vínculo con el programa lo define la ficha.</p>
+                        
                         @error('id_competencia')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                     </div>
                     <div>
@@ -164,49 +164,6 @@
                         @error('fecha_fin')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                     </div>
                 </div>
-                <p class="mt-1 text-xs text-gray-500">Las fechas no se editan aquí. Cuando ya pasó la última fecha de clase del periodo, el sistema puede marcar la reserva como finalizada (proceso automático diario).</p>
-                <p class="mt-1 text-xs text-gray-400">Las clases son los días indicados entre inicio y fin, <strong class="font-medium text-gray-600">incluyendo</strong> esas dos fechas si coinciden con el día de la semana elegido.</p>
-            </div>
-
-            {{-- DÍA: igual que crear (oculto + radios deshabilitados) --}}
-            <div>
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Día</p>
-                <p class="text-xs text-gray-500 mb-2">Lo define la <span class="font-medium">fecha de inicio</span>. El día <span class="font-medium">sí se envía al servidor y se guarda</span> en la base de datos; los botones en gris solo muestran cuál corresponde (el navegador no envía controles deshabilitados, por eso va un campo oculto y el servidor además lo calcula desde la fecha).</p>
-                @php
-                    $fechaParaDia = old('fecha_inicio', $reserva->fecha_inicio ?? null);
-                    $diaSegunInicio = '';
-                    if ($fechaParaDia) {
-                        try {
-                            $dowIni = \Carbon\Carbon::parse($fechaParaDia)->dayOfWeek;
-                            $mapDow = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
-                            $diaSegunInicio = $mapDow[$dowIni] ?? '';
-                        } catch (\Throwable $e) {
-                            $diaSegunInicio = '';
-                        }
-                    }
-                    $dias = [
-                        ['lunes', 'L'],
-                        ['martes', 'M'],
-                        ['miercoles', 'M'],
-                        ['jueves', 'J'],
-                        ['viernes', 'V'],
-                        ['sabado', 'S'],
-                        ['domingo', 'D'],
-                    ];
-                @endphp
-                <input type="hidden" name="dia_semana" id="dia_semana_hidden" value="{{ $diaSegunInicio }}" autocomplete="off">
-                <div class="flex flex-wrap gap-4 items-center pointer-events-none select-none opacity-90" aria-hidden="true">
-                    @foreach($dias as $d)
-                        <label class="inline-flex items-center gap-2 cursor-default">
-                            <input type="radio" value="{{ $d[0] }}" disabled
-                                   {{ $diaSegunInicio === $d[0] ? 'checked' : '' }}
-                                   class="js-dia-semana-vista w-4 h-4 text-[#39B54A] border-gray-300">
-                            <span class="text-sm font-medium text-gray-700">{{ $d[1] }}</span>
-                        </label>
-                    @endforeach
-                </div>
-                <p class="mt-1 text-xs text-gray-500">Sábados y domingos: horario único 7 am - 5 pm (una reserva por ambiente por día).</p>
-                @error('dia_semana')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
             </div>
 
             {{-- JORNADA --}}
@@ -321,11 +278,13 @@
 
             function limitarJornadaPorDia() {
                 const jornadaHidden = document.getElementById('jornada');
-                const hidden = document.getElementById('dia_semana_hidden');
-                if (!jornadaHidden || !hidden) return;
-                var diaVal = hidden.value;
-                if (!diaVal) return;
-                var esFin = diaVal === 'sabado' || diaVal === 'domingo';
+                const fechaInicio = document.getElementById('fecha_inicio');
+                if (!jornadaHidden || !fechaInicio || !fechaInicio.value) return;
+                var parts = fechaInicio.value.split('-');
+                if (parts.length !== 3) return;
+                var d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+                var dow = d.getDay();
+                var esFin = dow === 0 || dow === 6;
                 const jornadaDisplay = document.getElementById('jornada_display');
                 const opts = jornadaDisplay ? jornadaDisplay.querySelectorAll('option[value="manana"], option[value="tarde"], option[value="noche"], option[value="fin_semana"]') : [];
                 opts.forEach(function(o) {

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manual de usuario v4.32 · Sistema de control de ambientes</title>
+    <title>Manual de usuario v4.5 · Sistema de control de ambientes</title>
     <link rel="stylesheet" href="{{ asset('css/app-premium.css') }}">
     @vite(['resources/css/app.css'])
     <style>
@@ -44,7 +44,7 @@
     <div class="relative max-w-5xl mx-auto px-4 py-8">
         <header class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <p class="text-xs font-semibold uppercase tracking-wide text-sena-green mb-1">Versión 4.32</p>
+                <p class="text-xs font-semibold uppercase tracking-wide text-sena-green mb-1">Versión 4.5.17 · 27 de abril de 2026</p>
                 <h1 class="text-3xl font-extrabold text-sena-green mb-1">
                     Manual de usuario
                 </h1>
@@ -58,41 +58,16 @@
         </header>
 
         <section class="mb-8 bg-white rounded-xl shadow p-5">
-            <h2 class="text-xl font-bold mb-3">Novedades de la versión 4.32</h2>
-            <p class="mb-3 text-sm text-gray-600">Esta versión concentra mejoras de interfaz, exportaciones y documentación. Resumen de cambios relevantes (numeración interna de control, no requiere coincidir con commits de código):</p>
+            <h2 class="text-xl font-bold mb-3">Novedades de la versión 4.5.17 (27 de abril de 2026)</h2>
+            <p class="mb-3 text-sm text-gray-600">Esta versión actualiza el manual y refleja mejoras recientes de pantalla, administración y experiencia de uso. Resumen orientado al usuario final:</p>
             <ol class="list-decimal list-outside pl-5 space-y-1.5 text-sm">
-                <li>Manual y referencias de versión actualizados a 4.32.</li>
-                <li>Ortografía y redacción revisadas en textos de bienvenida, horarios y reportes.</li>
-                <li>Uso unificado del término «Programación» en la vista de horarios y en informes de ocupación.</li>
-                <li>Centro de reportes ampliado: descargas en PDF y en Excel (formato hoja de cálculo) desde un solo lugar.</li>
-                <li>Reporte de programación (antes «ambientes y reservas») disponible en PDF y en Excel.</li>
-                <li>Reporte de fichas de formación en PDF y en Excel.</li>
-                <li>Reporte del catálogo de ambientes (número, estado, capacidad, tipo) en PDF y en Excel.</li>
-                <li>Reporte de programas (nombre, nivel, duración) en PDF y en Excel.</li>
-                <li>Reporte de competencias (norma, códigos, horas, porcentaje, resultados) en PDF y en Excel.</li>
-                <li>Acceso a descargas alineado para administrador, coordinador líder y coordinador (en los límites de cada rol).</li>
-                <li>Rutas de exportación pensadas para que la coordinación pueda generar listados sin permisos de edición de catálogo.</li>
-                <li>Menú lateral: entrada «Descargar» bajo «Reportes» hacia el centro de exportaciones.</li>
-                <li>Botones con etiquetas «Descargar PDF» y «Descargar Excel» de forma coherente.</li>
-                <li>En reportes, enlace a cada módulo relacionado («Ir a horarios», «Ir a fichas», etc.).</li>
-                <li>Parámetro opcional de búsqueda en la barra de direcciones para acotar exportaciones, cuando el módulo lo admita en su listado.</li>
-                <li>Títulos de documentos generados con denominación «Programación» en exports de ocupación.</li>
-                <li>Tablas con encabezados y estilos alineados entre PDF y exportación a Excel (HTML para .xls).</li>
-                <li>Revisión de mayúsculas iniciales en títulos y rótulos de pantallas tocadas.</li>
-                <li>Coordinación L: sin administración de usuarios; mantiene catálogos y asignación según reglas de ruta.</li>
-                <li>Coordinador: consulta de catálogos; creación de reservas; sin edición o eliminación ajenas donde aplique el middleware de vista.</li>
-                <li>Instructores: sin acceso al centro global de reportes; conservan su reporte PDF de mis reservas con filtros.</li>
-                <li>Sección de formación: fichas, programas, competencias y resultados de aprendizaje descritos con precisión.</li>
-                <li>Sección de espacios: horarios, disponibilidad, catálogo de ambientes (según rol).</li>
-                <li>Sección de asignación: reglas de solapes, jornada y días de la semana.</li>
-                <li>Festivos de Colombia y acciones de liberar o recuperar días: referencia al flujo en «Mi jornada».</li>
-                <li>Seguridad: límites de petición, CSRF, sesión y cierre de sesión en equipos compartidos.</li>
-                <li>Acceso desde la página pública: enlace a este manual y al inicio de sesión.</li>
-                <li>Texto de la página de bienvenida: corrección de «Aplicación» y tipografía (espacios, etc.).</li>
-                <li>Pantalla de horarios: título de tabla «Programación» con acento ortográfico.</li>
-                <li>Comentarios de código y controlador de reportes alineados con PDF y Excel.</li>
-                <li>Changelog 4.32 documentado de forma clara para despliegue a producción.</li>
-                <li>Indicación de la versión del manual (v4.32) en el enlace de la pantalla de inicio de sesión.</li>
+                <li>Manual de usuario y enlace desde el inicio de sesión alineados a la <span class="font-semibold">versión 4.5</span> y a la fecha indicada arriba.</li>
+                <li><span class="font-semibold">Resultados de aprendizaje</span>: textos de ayuda más breves y centrados en lo que puede hacer en pantalla (buscar, filtrar, crear); la cabecera con filtro por competencia muestra competencia, buscador y acciones en una sola línea adaptada al ancho.</li>
+                <li><span class="font-semibold">Formularios de resultado</span> (crear / editar): campos alineados entre <span class="font-semibold">Horas</span> y <span class="font-semibold">Sesiones</span>; el aviso de cupo del complejo va a ancho completo entre las etiquetas y los campos para no desalinear las cajas; una sola nota inferior resume mínimo de horas, cálculo de sesiones y ajuste por cupo.</li>
+                <li>En <span class="font-semibold">Editar reserva</span>, la sección visual de <span class="font-semibold">Día</span> (días L–D) se retiró; el día de la semana sigue determinándose automáticamente a partir de la fecha de inicio y la validación del sistema; el resto del flujo de edición no cambia.</li>
+                <li><span class="font-semibold">Administración de usuarios</span> (solo administrador): nuevo botón <span class="font-semibold">Actualizar roles</span> entre «Buscar» y «Agregar usuario», con pantalla <span class="font-semibold">Actualización de roles</span>: verificación por cédula (solo números), elección entre <span class="font-semibold">Instructor</span>, <span class="font-semibold">Coordinador</span> y <span class="font-semibold">Coordinador líder</span>, resumen en tarjeta antes de aplicar. No puede cambiarse el propio rol aquí ni dejarse sin administrador si es el único.</li>
+                <li><span class="font-semibold">Ajustes de perfil</span>: los modales de editar nombre, apellidos, correo, teléfono, usuario y cambio de contraseña vuelven a abrirse correctamente (se unificó la lógica con el resto de la aplicación cargada por Vite).</li>
+                <li>Se mantienen las capacidades ya documentadas en versiones anteriores: <span class="font-semibold">Reportes</span> (PDF y Excel), <span class="font-semibold">Programación</span> en espacios, roles (administrador, coordinación L, coordinador, instructor), <span class="font-semibold">Mi jornada</span> del instructor y medidas de seguridad habituales.</li>
             </ol>
         </section>
 
@@ -126,7 +101,7 @@
             <p class="text-sm mb-2">Los permisos concretos dependen del rol asignado a cada usuario:</p>
             <ul class="list-disc list-inside space-y-2 text-sm">
                 <li>
-                    <span class="font-semibold">Administrador</span>: Acceso amplio, incluida la <span class="font-semibold">Administración de usuarios</span> (crear, editar, eliminar cuentas) y el centro de reportes en PDF y Excel, salvo las restricciones técnicas del sistema.
+                    <span class="font-semibold">Administrador</span>: Acceso amplio, incluida la <span class="font-semibold">Administración de usuarios</span> (crear, editar, eliminar cuentas, y <span class="font-semibold">Actualización de roles</span> para instructor, coordinador o coordinador líder) y el centro de reportes en PDF y Excel, salvo las restricciones técnicas del sistema.
                 </li>
                 <li>
                     <span class="font-semibold">Coordinación L (coordinador líder)</span>: Misma operación diaria que el administrador, <span class="font-semibold">excepto el módulo de usuarios</span> (no crea ni gestiona cuentas de acceso). Puede gestionar fichas, catálogos (programas, niveles, competencias, resultados), <span class="font-semibold">Gestión de ambientes</span> y <span class="font-semibold">Reservas</span> (crear, editar, eliminar), consultas y <span class="font-semibold">Reportes</span> (PDF y Excel).
@@ -165,7 +140,7 @@
             <h2 class="text-xl font-bold mb-3">6. Formación (fichas, programas, competencias, resultados)</h2>
             <ul class="list-disc list-inside space-y-2 text-sm">
                 <li><span class="font-semibold">Fichas</span>: Listado, búsqueda, alta, edición o baja (si el rol lo permite). La exportación global de fichas está en <span class="font-semibold">Reportes</span>. Cada ficha incluye programa, fechas, jornada, entre otros datos.</li>
-                <li><span class="font-semibold">Programas, competencias y resultados</span>: Mantenimiento del catálogo académico; los resultados incluyen <span class="font-semibold">Número de sesiones</span> (cupo) usado al validar reservas. Las descargas de listados de <span class="font-semibold">Programas</span> y de <span class="font-semibold">Competencias</span> están en <span class="font-semibold">Reportes</span>.</li>
+                <li><span class="font-semibold">Programas, competencias y resultados</span>: Mantenimiento del catálogo académico; los resultados incluyen <span class="font-semibold">horas</span> y <span class="font-semibold">sesiones</span> (cálculo alineado con reglas del sistema) usadas al validar reservas. Puede buscar y filtrar resultados por competencia; las descargas de listados de <span class="font-semibold">Programas</span> y de <span class="font-semibold">Competencias</span> siguen en <span class="font-semibold">Reportes</span>.</li>
             </ul>
         </section>
 
@@ -210,14 +185,18 @@
         <section class="mb-8 bg-white rounded-xl shadow p-5">
             <h2 class="text-xl font-bold mb-3">10. Administración de usuarios</h2>
             <p class="text-sm mb-2">
-                Solo los perfiles autorizados (en la práctica, el <span class="font-semibold">Administrador</span>) pueden crear, editar o eliminar usuarios y asignar roles. Se recomiendan contraseñas robustas y no compartir cuentas.
+                Solo el <span class="font-semibold">Administrador</span> accede al listado de usuarios: búsqueda por cédula, creación de cuentas y edición o eliminación según reglas del sistema.
             </p>
+            <p class="text-sm mb-2">
+                Desde el mismo listado, el botón <span class="font-semibold">Actualizar roles</span> abre el flujo <span class="font-semibold">Actualización de roles</span>, pensado para cuando un docente o coordinación cambia de función: ingrese la <span class="font-semibold">cédula</span> (solo números), pulse <span class="font-semibold">Verificar cédula</span>, elija <span class="font-semibold">Instructor</span>, <span class="font-semibold">Coordinador</span> o <span class="font-semibold">Coordinador líder</span> y revise la tarjeta de resumen antes de <span class="font-semibold">Aplicar actualización</span>. No puede modificarse su propia cuenta desde aquí, ni reasignar el único administrador del sistema.
+            </p>
+            <p class="text-sm text-gray-600">Se recomiendan contraseñas robustas y no compartir cuentas.</p>
         </section>
 
         <section class="mb-8 bg-white rounded-xl shadow p-5">
             <h2 class="text-xl font-bold mb-3">11. Ajustes de la cuenta</h2>
             <p class="text-sm mb-2">
-                Cada usuario puede actualizar, desde <span class="font-semibold">Ajustes</span>, su nombre, apellidos, correo, teléfono, nombre de usuario y contraseña, según los formularios mostrados. El cambio de contraseña suele exigir la contraseña actual y su confirmación.
+                Cada usuario puede actualizar, desde <span class="font-semibold">Ajustes</span>, su nombre, apellidos, correo, teléfono, nombre de usuario y contraseña mediante los modales abiertos con <span class="font-semibold">Editar</span> o <span class="font-semibold">Cambiar contraseña</span>. El correo, la cédula y el <span class="font-semibold">Rol</span> se muestran con las restricciones indicadas en pantalla. El cambio de contraseña exige la contraseña actual y la confirmación de la nueva.
             </p>
         </section>
 
@@ -232,7 +211,7 @@
         </section>
 
         <footer class="text-center text-xs text-gray-500 pb-6">
-            Sistema de control de ambientes · SENA · Manual de usuario <span class="font-semibold">v4.32</span>
+            Sistema de control de ambientes · SENA · Manual de usuario <span class="font-semibold">v4.5</span> · 17 de abril de 2026
         </footer>
     </div>
     <script>

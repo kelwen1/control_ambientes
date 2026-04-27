@@ -13,7 +13,6 @@ use Illuminate\Validation\Rule;
 
 class ResultadosController extends Controller
 {
-    /** Horas mínimas por resultado: una sesión = 6 h (entero); menos horas implicaría 0 sesiones. */
     private const HORAS_POR_SESION = 6;
 
     public function index(Request $request)
@@ -120,7 +119,6 @@ class ResultadosController extends Controller
 
         $cantidadResultados = (int) ($competencia->cantidad_resultados ?? 0);
 
-        // Validar que no se supere la cantidad de resultados permitidos
         if ($cantidadResultados > 0) {
             $resultadosActuales = Resultado::where('id_competencia', $competencia->id_competencia)->count();
             if ($resultadosActuales >= $cantidadResultados) {
@@ -174,7 +172,6 @@ class ResultadosController extends Controller
 
         $resultado = Resultado::create($validated);
 
-        // Auditoría created_by / updated_by si existen las columnas
         $actorIdPersona = Auth::user()->persona->id_persona ?? null;
         if ($actorIdPersona !== null && Schema::hasColumn('resultados', 'created_by') && Schema::hasColumn('resultados', 'updated_by')) {
             DB::table('resultados')
@@ -283,7 +280,6 @@ class ResultadosController extends Controller
             'sesiones' => $sesiones,
         ]);
 
-        // Auditoría updated_by si existe la columna
         $actorIdPersona = Auth::user()->persona->id_persona ?? null;
         if ($actorIdPersona !== null && Schema::hasColumn('resultados', 'updated_by')) {
             DB::table('resultados')

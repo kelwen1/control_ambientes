@@ -114,9 +114,8 @@
             <div>
                 <p class="text-xs text-gray-500 mb-3">
                     La <span class="font-semibold">fecha de fin</span> se calcula según el nivel del programa:
-                    Media técnica 12 meses, Técnica 18 meses, Tecnología 24 meses.
-                    La <span class="font-semibold">fecha productiva</span> queda 6 meses antes de esa referencia de fin.
-                    A <span class="font-semibold">fecha fin</span> y <span class="font-semibold">fecha productiva</span> se les resta un día (regla de cierre y salida a prácticas).
+                    Media técnica 12 meses, Técnica 18 meses, Tecnología 24 meses o segun los que existan.
+                    La <span class="font-semibold">fecha productiva</span> queda 6 meses antes de la fecha fin.
                 </p>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
                     <div>

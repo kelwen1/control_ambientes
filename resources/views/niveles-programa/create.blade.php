@@ -48,7 +48,6 @@
                        inputmode="numeric"
                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-[#39B54A] focus:ring-2 focus:ring-[#39B54A]/20 focus:outline-none text-sm sm:text-base"
                        placeholder="Ej: 19">
-                <p class="mt-1.5 text-xs text-gray-500">1–120. Se escribe en <span class="font-medium">duracion</span> (no en <span class="font-medium">nivel_programa</span>).</p>
                 @error('meses')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror

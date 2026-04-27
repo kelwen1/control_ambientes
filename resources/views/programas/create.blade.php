@@ -73,7 +73,6 @@
                          aria-live="polite">
                         —
                     </div>
-                    <p class="mt-1 text-xs text-gray-500">La duración viene del <span class="font-medium">nivel</span> (meses al crear/editarlo o reglas por nombre). Si sale el aviso en rojo, ese nivel aún no tiene duración vinculada: en <span class="font-medium">Niveles de programa</span> edítelo y guarde los meses. Tras actualizar el código, conviene <span class="font-mono text-[11px] bg-gray-100 px-1 rounded">php artisan migrate</span> y, para nombres estándar, <span class="font-mono text-[11px] bg-gray-100 px-1 rounded">php artisan niveles:sincronizar-duracion</span>.</p>
                     @error('id_duracion')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror

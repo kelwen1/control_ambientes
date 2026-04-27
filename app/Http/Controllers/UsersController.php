@@ -17,6 +17,165 @@ use Illuminate\Support\Facades\Schema;
 
 class UsersController extends Controller
 {
+    /** Etiqueta legible del rol (tabla o ids conocidos). */
+    private function etiquetaRol(int $idRol): string
+    {
+        return match ($idRol) {
+            (int) config('roles.ids.administrador', 1) => 'Administrador',
+            (int) config('roles.ids.coordinacion_L', 2) => 'Coordinador líder',
+            (int) config('roles.ids.coordinacion', 3) => 'Coordinador',
+            (int) config('roles.ids.instructor', 4) => 'Instructor',
+            default => 'Otro',
+        };
+    }
+
+    /**
+     * Formulario de actualización de roles (instructor, coordinador, coordinador líder). Solo administrador.
+     */
+    public function showRoleUpdate()
+    {
+        $rolesCambio = [
+            (int) config('roles.ids.coordinacion_L', 2) => 'Coordinador líder',
+            (int) config('roles.ids.coordinacion', 3) => 'Coordinador',
+            (int) config('roles.ids.instructor', 4) => 'Instructor',
+        ];
+
+        return view('users.role-update', [
+            'rolesCambio' => $rolesCambio,
+        ]);
+    }
+
+    /**
+     * Valida cédula y devuelve datos del usuario (AJAX) para el formulario de cambio de rol.
+     */
+    public function lookupCedulaForRoleUpdate(Request $request)
+    {
+        $request->validate([
+            'cedula' => ['required', 'string', 'regex:/^\d{1,10}$/'],
+        ], [
+            'cedula.required' => 'Ingrese la cédula.',
+            'cedula.regex' => 'La cédula solo puede contener números (máximo 10 dígitos).',
+        ]);
+
+        $cedula = trim($request->query('cedula', ''));
+        $user = User::with('persona.rol')
+            ->where('id_persona', $cedula)
+            ->first();
+
+        if (! $user || ! $user->persona) {
+            return response()->json([
+                'ok' => false,
+                'message' => 'No hay ninguna cuenta de usuario con esa cédula.',
+            ], 404);
+        }
+
+        $p = $user->persona;
+        $idRol = (int) $p->id_rol;
+        if ($idRol === (int) config('roles.ids.administrador', 1)) {
+            $totalAdmins = User::whereHas('persona', fn ($q) => $q->where('id_rol', config('roles.ids.administrador', 1)))->count();
+            if ($totalAdmins <= 1) {
+                return response()->json([
+                    'ok' => false,
+                    'message' => 'No se puede reasignar al único administrador del sistema desde aquí. Cree otro administrador primero o use otro flujo.',
+                ], 422);
+            }
+        }
+
+        return response()->json([
+            'ok' => true,
+            'cedula' => (string) $p->id_persona,
+            'nombres' => $p->nombres,
+            'apellidos' => $p->apellidos,
+            'nombre_completo' => trim($p->nombres.' '.$p->apellidos),
+            'id_rol_actual' => $idRol,
+            'rol_actual_etiqueta' => $this->etiquetaRol($idRol),
+        ]);
+    }
+
+    /**
+     * Aplica el nuevo rol a la persona (solo roles 2, 3, 4).
+     */
+    public function updateRole(Request $request)
+    {
+        $permitidos = [
+            (int) config('roles.ids.coordinacion_L', 2),
+            (int) config('roles.ids.coordinacion', 3),
+            (int) config('roles.ids.instructor', 4),
+        ];
+        $validated = $request->validate([
+            'cedula' => [
+                'required',
+                'string',
+                'regex:/^\d{1,10}$/',
+                'exists:users,id_persona',
+            ],
+            'id_rol' => 'required|integer|in:'.implode(',', $permitidos),
+        ], [
+            'cedula.required' => 'La cédula es obligatoria.',
+            'cedula.regex' => 'La cédula solo puede contener números.',
+            'cedula.exists' => 'No existe un usuario con esa cédula.',
+            'id_rol.in' => 'Debe elegir un rol permitido: Instructor, Coordinador o Coordinador líder.',
+        ]);
+
+        $cedula = trim($validated['cedula']);
+        $myCedula = (string) (Auth::user()->id_cedula ?? '');
+        if ($myCedula !== '' && $cedula === $myCedula) {
+            return redirect()
+                ->route('users.role-update')
+                ->with('error', 'No puede actualizar su propio rol en esta pantalla por seguridad.');
+        }
+
+        $user = User::where('id_persona', $cedula)->with('persona')->first();
+        if (! $user?->persona) {
+            return redirect()->route('users.role-update')->with('error', 'Usuario no encontrado.');
+        }
+
+        $persona = $user->persona;
+        $nuevoIdRol = (int) $validated['id_rol'];
+        $rolAnterior = (int) $persona->id_rol;
+
+        if ($rolAnterior === (int) config('roles.ids.administrador', 1)) {
+            $totalAdmins = User::whereHas('persona', fn ($q) => $q->where('id_rol', config('roles.ids.administrador', 1)))->count();
+            if ($totalAdmins <= 1) {
+                return redirect()
+                    ->route('users.role-update')
+                    ->with('error', 'No puede quitarse el rol al único administrador del sistema.');
+            }
+        }
+
+        if ($rolAnterior === $nuevoIdRol) {
+            return redirect()
+                ->route('users.role-update')
+                ->with('info', 'No hay cambios: el rol seleccionado es el que ya tenía el usuario.');
+        }
+
+        $persona->id_rol = $nuevoIdRol;
+        $persona->save();
+
+        try {
+            SecurityAuditLog::create([
+                'user_id' => (string) Auth::user()?->id_cedula,
+                'action' => 'user_role_changed',
+                'resource_type' => 'persona',
+                'resource_id' => (string) $cedula,
+                'description' => 'Cambio de rol cédula '.$cedula.': '.($this->etiquetaRol($rolAnterior)).' → '.($this->etiquetaRol($nuevoIdRol)),
+                'ip_address' => $request->ip(),
+                'user_agent' => substr((string) $request->userAgent(), 0, 255),
+                'status' => 'success',
+                'metadata' => null,
+                'created_at' => now(),
+            ]);
+        } catch (\Throwable $e) {
+            // no interrumpir
+        }
+
+        $nombre = trim($persona->nombres.' '.$persona->apellidos);
+
+        return redirect()
+            ->route('users.role-update')
+            ->with('success', 'Rol actualizado: '.$nombre.' ahora es '.$this->etiquetaRol($nuevoIdRol).'.');
+    }
+
     /**
      * Listado de usuarios (persona + user + rol). Muestra quién creó a cada persona.
      */

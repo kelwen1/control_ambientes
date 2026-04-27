@@ -69,9 +69,28 @@ export function closeDeleteModal(modalId = 'deleteModal') {
     }
 }
 
-// Modal de edición (ajustes)
-export function openEditModal(modalId) {
-    const modal = document.getElementById(modalId);
+/**
+ * Ajustes de perfil: los botones pasan clave corta ('nombre', 'correo'…). Otras pantallas
+ * pueden pasar el id real del nodo (p. ej. 'editNombreModal'). El bundle carga con defer
+ * y reemplaza a cualquier openEditModal en línea, así el mapa debe vivir aquí.
+ */
+const AJUSTES_CAMPO_A_MODAL = {
+    nombre: 'editNombreModal',
+    apellido: 'editApellidoModal',
+    telefono: 'editTelefonoModal',
+    correo: 'editCorreoModal',
+    usuario: 'editUsuarioModal',
+    contraseña: 'editContraseñaModal',
+    contrasena: 'editContraseñaModal',
+};
+
+// Modal de edición (ajustes y otras vistas)
+export function openEditModal(modalIdOrAjustesField) {
+    const id =
+        AJUSTES_CAMPO_A_MODAL[modalIdOrAjustesField] != null
+            ? AJUSTES_CAMPO_A_MODAL[modalIdOrAjustesField]
+            : modalIdOrAjustesField;
+    const modal = document.getElementById(id);
     if (modal) {
         modal.classList.remove('hidden');
         modal.classList.add('flex');
@@ -86,6 +105,10 @@ export function closeModal(modalId) {
             modal.classList.add('hidden');
             modal.classList.remove('flex');
             modal.style.animation = '';
+            const form = modal.querySelector('form');
+            if (form) {
+                form.reset();
+            }
         }, 300);
     }
 }

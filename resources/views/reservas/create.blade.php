@@ -64,7 +64,6 @@
                                 </option>
                             @endforeach
                         </select>
-                        <p class="mt-1 text-xs text-gray-500">Competencias del catálogo común: cualquiera puede asociarse a la ficha elegida.</p>
                         @error('id_competencia')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                     </div>
                     <div>
@@ -79,7 +78,7 @@
                                 </option>
                             @endforeach
                         </select>
-                        <p class="mt-1 text-xs text-gray-500">Se habilita al elegir competencia; solo resultados de esa competencia.</p>
+                        <p class="mt-1 text-xs text-gray-500">Se habilita al elegir competencia, solo resultados de esa competencia.</p>
                     </div>
                 </div>
             </div>
@@ -103,7 +102,7 @@
                            placeholder="7 a 10 dígitos"
                            class="w-full max-w-md px-3 py-2 border-2 border-gray-300 rounded-xl focus:border-[#39B54A] focus:ring-2 focus:ring-[#39B54A]/20 focus:outline-none transition-all duration-200 text-sm">
                     <input type="hidden" name="id_persona" id="id_persona" value="{{ old('id_persona') }}">
-                    <p class="mt-1 text-xs text-gray-500">Solo números, entre 7 y 10 dígitos (cédula colombiana). Debe coincidir con la cédula registrada; si borra un dígito, se limpia la selección.</p>
+                    <p class="mt-1 text-xs text-gray-500">Entre 7 y 10 dígitos. Debe coincidir con la cédula registrada.</p>
                     @error('id_persona')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

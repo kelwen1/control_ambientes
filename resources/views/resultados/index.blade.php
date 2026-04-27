@@ -33,12 +33,6 @@
             <div class="flex flex-col gap-3 w-full min-w-0 lg:w-auto lg:max-w-5xl lg:items-end">
                 @if(empty($filtroFijoCompetencia))
                 <form method="GET" action="{{ route('resultados.index') }}" class="flex flex-col sm:flex-row sm:flex-wrap gap-2 w-full min-w-0">
-                    <input type="text"
-                           name="search"
-                           value="{{ $search }}"
-                           placeholder="Buscar por denominación..."
-                           class="w-full min-w-0 flex-1 px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-[#39B54A] focus:ring-2 focus:ring-[#39B54A]/20 focus:outline-none transition-all duration-200 text-sm sm:min-w-[10rem]">
-
                     <select name="competencia"
                             class="w-full sm:w-auto sm:min-w-[9rem] px-3 py-2 border-2 border-gray-300 rounded-xl focus:border-[#39B54A] focus:ring-2 focus:ring-[#39B54A]/20 focus:outline-none transition-all duration-200 text-xs sm:text-sm">
                         <option value="">Todas las competencias</option>

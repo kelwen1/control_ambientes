@@ -4,12 +4,13 @@
 
 @section('content')
     @php
+        $horasPorSesion = 6;
         $etiquetaCatalogo = 'Catálogo común (todas las fichas / programas)';
         $nombreProgramaFijo = !empty($competenciaPreseleccionada)
             ? (optional($competenciaPreseleccionada->programa)->nombre_programa ?? $etiquetaCatalogo)
             : '';
         $dComplejoIni = !empty($competenciaPreseleccionada) ? $competenciaPreseleccionada->horasDuracionEnComplejo() : 0;
-        $sesTotCompIni = $dComplejoIni > 0 ? intdiv($dComplejoIni, 6) : 0;
+        $sesTotCompIni = $dComplejoIni > 0 ? intdiv($dComplejoIni, $horasPorSesion) : 0;
         $restantesIni = $horasRestantesPreseleccion ?? 0;
     @endphp
     <div class="mb-6 sm:mb-8 animate-fade-slide-up">
@@ -31,7 +32,8 @@
               data-fixed-programa-nombre="{{ $nombreProgramaFijo !== '' ? $nombreProgramaFijo : $etiquetaCatalogo }}"
               data-fixed-duracion-complejo="{{ $dComplejoIni }}"
               data-fixed-sesiones-totales="{{ $sesTotCompIni }}"
-              data-fixed-horas-restantes="{{ (int) ($restantesIni ?? 0) }}">
+              data-fixed-horas-restantes="{{ (int) ($restantesIni ?? 0) }}"
+              data-horas-por-sesion="{{ $horasPorSesion }}">
             @csrf
 
             <div>
@@ -88,7 +90,7 @@
                                 $dComp = $competencia->horasDuracionEnComplejo();
                                 $usadas = (int) ($horasUsadasPorCompetencia[$competencia->id_competencia] ?? 0);
                                 $restantes = max(0, $dComp - $usadas);
-                                $sesTotComp = $dComp > 0 ? intdiv($dComp, 6) : 0;
+                                $sesTotComp = $dComp > 0 ? intdiv($dComp, $horasPorSesion) : 0;
                                 $resultadosActuales = $resultadosPorCompetencia[$competencia->id_competencia] ?? 0;
                                 $estaLlena = $cantidad > 0 && $resultadosActuales >= $cantidad;
                             @endphp
@@ -128,7 +130,7 @@
                            autocomplete="off"
                            placeholder=""
                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-[#39B54A] focus:ring-2 focus:ring-[#39B54A]/20 focus:outline-none transition-all duration-200 text-sm sm:text-base">
-                    <p class="mt-1 text-xs text-gray-500">Enteros. Si supera el máximo indicado arriba, el valor se ajusta y las sesiones se recalculan.</p>
+                    <p class="mt-1 text-xs text-gray-500">Mínimo {{ $horasPorSesion }} h (1 sesión de {{ $horasPorSesion }} h). Enteros. Si supera el máximo del cupo, el valor se ajusta; las sesiones = horas ÷ {{ $horasPorSesion }}.</p>
                     <p id="horasCupoAviso" class="mt-1 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 hidden"></p>
                     @error('horas')
                         <p id="horas-error-server" class="mt-1 text-sm text-red-600" role="alert">{{ $message }}</p>
@@ -146,7 +148,7 @@
                            value=""
                            placeholder="—"
                            class="w-full px-4 py-3 border-2 border-gray-200 bg-gray-50 text-gray-800 rounded-xl text-sm sm:text-base cursor-default">
-                    <p class="mt-1 text-xs text-gray-500">Horas efectivas (tras el límite) ÷ 6.</p>
+                    <p class="mt-1 text-xs text-gray-500">Horas efectivas (tras el límite) ÷ {{ $horasPorSesion }}.</p>
                 </div>
             </div>
 
@@ -174,6 +176,7 @@
             const horasLimiteLegend = document.getElementById('horasLimiteLegend');
             const horasErrorServer = document.getElementById('horas-error-server');
             const form = document.getElementById('formResultadoCreate');
+            const HORAS_POR_SESION = form && form.dataset.horasPorSesion ? parseInt(String(form.dataset.horasPorSesion), 10) : 6;
             const oldCompetencia = form && form.dataset.oldCompetencia ? form.dataset.oldCompetencia : null;
             const fixedCompetencia = form && form.dataset.fixedCompetencia ? form.dataset.fixedCompetencia : '';
             const fixedPrograma = form && form.dataset.fixedPrograma ? form.dataset.fixedPrograma : '';
@@ -197,6 +200,9 @@
                             horasLimiteLegend.innerHTML = 'Puede usar hasta <span style="color:#39B54A;font-weight:600">' + restNum + ' h</span> (todo el cupo del complejo está libre: <span style="color:#39B54A;font-weight:600">' + dComp + ' h</span>). Si escribe más, se ajusta.';
                         }
                         horasLimiteLegend.classList.remove('hidden');
+                    } else if (dComp > 0 && maxHorasCupoForResult >= 1 && maxHorasCupoForResult < HORAS_POR_SESION) {
+                        horasLimiteLegend.textContent = 'Solo quedan ' + maxHorasCupoForResult + ' h libres; hacen falta al menos ' + HORAS_POR_SESION + ' h (1 sesión) para un resultado nuevo.';
+                        horasLimiteLegend.classList.remove('hidden');
                     } else if (dComp > 0 && maxHorasCupoForResult < 1) {
                         horasLimiteLegend.textContent = 'No quedan horas disponibles en el complejo para un resultado nuevo.';
                         horasLimiteLegend.classList.remove('hidden');
@@ -209,8 +215,9 @@
                     }
                 }
                 if (horasInput) {
-                    horasInput.placeholder = maxHorasCupoForResult > 0 ? '' : 'Sin cupo';
-                    if (maxHorasCupoForResult < 1) {
+                    var insufCupo = maxHorasCupoForResult >= 1 && maxHorasCupoForResult < HORAS_POR_SESION;
+                    horasInput.placeholder = (maxHorasCupoForResult > 0 && !insufCupo) ? '' : (insufCupo ? 'Mín. ' + HORAS_POR_SESION + ' h' : 'Sin cupo');
+                    if (maxHorasCupoForResult < 1 || insufCupo) {
                         horasInput.setAttribute('readonly', 'readonly');
                         horasInput.classList.add('bg-gray-100', 'cursor-not-allowed');
                         horasInput.value = '';
@@ -244,7 +251,7 @@
                 if (maxHorasCupoForResult >= 1) {
                     efectivas = Math.min(h, maxHorasCupoForResult);
                 }
-                sesionesDisplay.value = String(Math.floor(efectivas / 6));
+                sesionesDisplay.value = String(Math.floor(efectivas / HORAS_POR_SESION));
             }
 
             function enforceHorasCupo(mostrarAviso) {

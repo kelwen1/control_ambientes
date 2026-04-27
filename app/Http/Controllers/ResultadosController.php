@@ -13,6 +13,9 @@ use Illuminate\Validation\Rule;
 
 class ResultadosController extends Controller
 {
+    /** Horas mínimas por resultado: una sesión = 6 h (entero); menos horas implicaría 0 sesiones. */
+    private const HORAS_POR_SESION = 6;
+
     public function index(Request $request)
     {
         $query = Resultado::with('competencia')->orderBy('denominacion');
@@ -97,13 +100,14 @@ class ResultadosController extends Controller
                 'integer',
                 Rule::exists('competencia', 'id_competencia'),
             ],
-            'horas' => ['required', 'integer', 'min:1', 'max:9999999'],
+            'horas' => ['required', 'integer', 'min:'.self::HORAS_POR_SESION, 'max:9999999'],
         ], [
             'denominacion.required' => 'La denominación del resultado es obligatoria.',
             'denominacion.max' => 'La denominación no puede superar los 150 caracteres.',
             'denominacion.regex' => 'La denominación solo puede contener letras y espacios.',
             'horas.required' => 'Las horas son obligatorias.',
             'horas.integer' => 'Las horas deben ser un número entero.',
+            'horas.min' => 'Cada sesión representa 6 h; el mínimo por resultado es 6 h (al menos 1 sesión).',
             'horas.max' => 'El valor de horas es demasiado grande.',
             'id_competencia.required' => 'Debe seleccionar una competencia.',
             'id_competencia.exists' => 'La competencia seleccionada no es válida.',
@@ -143,7 +147,16 @@ class ResultadosController extends Controller
         $horasUsadasOtras = (int) Resultado::where('id_competencia', $competencia->id_competencia)->sum('horas');
         $horasRestantes = $duracionComplejo - $horasUsadasOtras;
 
-        $sesiones = intdiv($horas, 6);
+        if ($horasRestantes < self::HORAS_POR_SESION) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->withErrors([
+                    'horas' => 'Para un resultado hacen falta al menos '.self::HORAS_POR_SESION.' h (1 sesión) libres en el complejo, y ahora solo quedan '.$horasRestantes.' h. Reduzca horas en otros resultados o revise la competencia.',
+                ]);
+        }
+
+        $sesiones = intdiv($horas, self::HORAS_POR_SESION);
 
         if ($horas > $horasRestantes) {
             $usadas = $duracionComplejo - $horasRestantes;
@@ -190,7 +203,7 @@ class ResultadosController extends Controller
             ->where('id_resultado', '!=', $resultado->id_resultado)
             ->sum('horas');
         $horasRestantes = max(0, $duracionComplejo - $horasUsadasOtras);
-        $sesionesTotalesCompetencia = $duracionComplejo > 0 ? intdiv($duracionComplejo, 6) : 0;
+        $sesionesTotalesCompetencia = $duracionComplejo > 0 ? intdiv($duracionComplejo, self::HORAS_POR_SESION) : 0;
 
         return view('resultados.edit', [
             'resultado' => $resultado,
@@ -215,13 +228,14 @@ class ResultadosController extends Controller
 
         $validated = $request->validate([
             'denominacion' => ['required', 'string', 'max:150', 'regex:/^[\p{L}\s]+$/u'],
-            'horas' => ['required', 'integer', 'min:1', 'max:9999999'],
+            'horas' => ['required', 'integer', 'min:'.self::HORAS_POR_SESION, 'max:9999999'],
         ], [
             'denominacion.required' => 'La denominación del resultado es obligatoria.',
             'denominacion.max' => 'La denominación no puede superar los 150 caracteres.',
             'denominacion.regex' => 'La denominación solo puede contener letras y espacios.',
             'horas.required' => 'Las horas son obligatorias.',
             'horas.integer' => 'Las horas deben ser un número entero.',
+            'horas.min' => 'Cada sesión representa 6 h; el mínimo por resultado es 6 h (al menos 1 sesión).',
             'horas.max' => 'El valor de horas es demasiado grande.',
         ]);
 
@@ -241,7 +255,16 @@ class ResultadosController extends Controller
             ->sum('horas');
         $horasRestantes = $duracionComplejo - $horasUsadasOtras;
 
-        $sesiones = intdiv($horas, 6);
+        if ($horasRestantes < self::HORAS_POR_SESION) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->withErrors([
+                    'horas' => 'El máximo de horas que puede asignar a este resultado es '.$horasRestantes.' h, inferior al mínimo de '.self::HORAS_POR_SESION.' h (1 sesión). Reduzca horas en otros resultados o revise la competencia.',
+                ]);
+        }
+
+        $sesiones = intdiv($horas, self::HORAS_POR_SESION);
 
         if ($horas > $horasRestantes) {
             $enOtros = $duracionComplejo - $horasRestantes;
